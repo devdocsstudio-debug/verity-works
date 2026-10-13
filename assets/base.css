@@ -1,0 +1,81 @@
+/* Verity Works -- shared base stylesheet. Plain CSS, no build step, no framework --
+   justified by the project's actual size (5 static pages, no dynamic data). */
+
+:root {
+  --bg: #F5F3EF; --surface: #FFFFFF; --ink: #1C1D1B; --ink-soft: #4F4B45; --rule: #DEDAD0;
+  --accent: #1F4D3E; --accent-soft: #E4EEE9; --accent-ink: #163A2F;
+  --focus: #1657C9;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14160F; --surface: #1C1F16; --ink: #ECE8DE; --ink-soft: #C3BEAF; --rule: #343A2C;
+    --accent: #6FBF9E; --accent-soft: #203A30; --accent-ink: #9FDCC2; --focus: #7FB0FF;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14160F; --surface: #1C1F16; --ink: #ECE8DE; --ink-soft: #C3BEAF; --rule: #343A2C;
+  --accent: #6FBF9E; --accent-soft: #203A30; --accent-ink: #9FDCC2; --focus: #7FB0FF;
+}
+
+* { box-sizing: border-box; }
+html { color-scheme: light dark; }
+body {
+  background: var(--bg); color: var(--ink); margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16.5px; line-height: 1.6;
+}
+h1, h2, .mark { font-family: 'Fraunces', Georgia, serif; }
+a { color: var(--accent-ink); }
+img { max-width: 100%; }
+
+/* Accessibility: visible keyboard focus everywhere, never suppressed */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid var(--focus); outline-offset: 2px;
+}
+
+/* Skip link: hidden until focused, real target #main on every page */
+.skip-link {
+  position: absolute; left: -999px; top: 0; background: var(--accent); color: var(--bg);
+  padding: 10px 16px; border-radius: 0 0 8px 0; z-index: 100; font-weight: 600; text-decoration: none;
+}
+.skip-link:focus { left: 0; }
+
+.wrap { max-width: 900px; margin: 0 auto; padding-inline: 20px; }
+
+/* Site header / nav -- real navigation across all 5 pages, not a single orphaned page */
+.site-header {
+  border-bottom: 1px solid var(--rule); padding-block: 16px; margin-bottom: 8px;
+}
+.site-header .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.site-header .mark { font-size: 18px; font-weight: 600; text-decoration: none; color: var(--ink); }
+.site-nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
+.site-nav a { text-decoration: none; color: var(--ink-soft); }
+.site-nav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
+.site-nav a:hover { color: var(--accent-ink); }
+
+main { padding-block: 44px; }
+
+.section-label {
+  font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-ink);
+  margin: 40px 0 16px; display: flex; align-items: center; gap: 10px;
+}
+.section-label::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+
+.card {
+  background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 20px 22px;
+}
+
+.btn {
+  display: inline-block; background: var(--accent); color: var(--bg); padding: 11px 20px;
+  border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 14.5px;
+}
+.btn:focus-visible { outline-offset: 3px; }
+
+.site-footer {
+  border-top: 1px solid var(--rule); margin-top: 48px; padding-block: 24px;
+  font-size: 12.5px; color: var(--ink-soft); text-align: center;
+}
+
+@media (max-width: 560px) {
+  main { padding-block: 28px; }
+}

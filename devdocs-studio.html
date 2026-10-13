@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DevDocs Studio — Verity Works</title>
+<meta name="description" content="Freelance API and developer documentation — every example verified before publishing.">
+<link rel="canonical" href="https://example.invalid/devdocs-studio.html">
+<meta property="og:title" content="DevDocs Studio">
+<meta property="og:description" content="API/developer documentation where every code example is run before it's published.">
+<meta property="og:type" content="website">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  .code-sample { background: #F1ECDD; color: #2E2A20; border-radius: 7px; padding: 14px 16px; font-size: 13px; font-family: 'JetBrains Mono', monospace; overflow-x: auto; margin: 0 0 12px; }
+  :root[data-theme="dark"] .code-sample, :root:not([data-theme="light"]) .code-sample { background: #171410; color: #E7DFC9; }
+  .gotcha { font-size: 15px; }
+  .gotcha b { color: var(--accent-ink); }
+  .tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 560px) { .tier-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="mark" href="index.html">Verity Works</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
+      <a href="content-repurposing.html">Content Repurposing</a>
+      <a href="devdocs-studio.html" aria-current="page">DevDocs Studio</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+  <h1 style="font-size:clamp(28px,5vw,36px); line-height:1.15; text-wrap:balance;">Documentation people actually finish reading.</h1>
+  <p style="font-size:18px; color:var(--ink-soft); max-width:58ch;">Task-oriented API and developer guides for real libraries and APIs. <strong>Every code example is run against the real package before it's published.</strong> Not assumed, not AI-paraphrased from the README.</p>
+
+  <div class="section-label">Proof, not promises</div>
+  <div class="card" style="margin-bottom:14px;">
+    <p style="font-weight:600; font-size:14px; margin:0 0 10px;">better-sqlite3 — Common Patterns Guide</p>
+    <pre class="code-sample">const transfer = db.transaction((fromId, toId, amount) =&gt; {
+  db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(amount, fromId);
+  db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, toId);
+});</pre>
+    <p class="gotcha"><b>The gotcha most guides miss:</b> the transaction only rolls back on a thrown JS error — an UPDATE matching zero rows doesn't throw.</p>
+  </div>
+  <div class="card">
+    <p style="font-weight:600; font-size:14px; margin:0 0 10px;">pdf-lib — Quick Reference</p>
+    <pre class="code-sample">const target = await PDFDocument.create();
+const [copiedPage] = await target.copyPages(sourceDoc, [0]);
+target.addPage(copiedPage);</pre>
+    <p class="gotcha"><b>The gotcha most guides miss:</b> <code>copyPages</code> is called on the destination document, with the source as an argument.</p>
+  </div>
+
+  <div class="section-label">Order</div>
+  <div class="tier-grid">
+    <div class="card">
+      <div style="font-size:12.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft);">Starter Guide</div>
+      <div style="font-size:22px; font-weight:700; margin:6px 0 10px;">$250</div>
+      <ul style="margin:0; padding-left:18px; font-size:13.5px;"><li>One guide, up to 6 sections</li><li>1 revision round</li></ul>
+    </div>
+    <div class="card" style="border-color:var(--accent); border-width:1.5px;">
+      <div style="font-size:12.5px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft);">Full Reference</div>
+      <div style="font-size:22px; font-weight:700; margin:6px 0 10px;">$750–1,500</div>
+      <ul style="margin:0; padding-left:18px; font-size:13.5px;"><li>Complete onboarding + reference set</li><li>2 revision rounds</li></ul>
+    </div>
+  </div>
+
+  <div class="section-label">Have a gap like the ones above?</div>
+  <div class="card" style="text-align:center;">
+    <p>Tell us which library or API, and what's missing.</p>
+    <a class="btn" href="mailto:devdocsstudio@gmail.com?subject=Documentation%20inquiry&body=Library%2FAPI%3A%0AWhat's%20missing%20from%20the%20current%20docs%3A">Email us the gap</a>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, or their maintainers. &middot; <a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></div>
+</footer>
+</body>
+</html>
