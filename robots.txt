@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://example.invalid/sitemap.xml
+Sitemap: https://devdocsstudio-debug.github.io/verity-works/sitemap.xml
