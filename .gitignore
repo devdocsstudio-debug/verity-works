@@ -1,3 +1,6 @@
 .DS_Store
 Thumbs.db
 *.swp
+
+# Review-only screenshots for owner approval -- never meant to be deployed to Pages
+redesign-screenshots-blackgold/
