@@ -45,6 +45,17 @@ things, not a new standalone dependency.
 Nothing above was done by the agent — account creation and the actual push/publish are real,
 consequential, owner-only actions.
 
+**Before any future deploy**, run `node verify-site.js` from this folder -- automated checks (added
+2026-10-14, informed by github.com/moalsayed95/cookbook's pre-deployment-checklist, adapted to what
+actually applies to a static, backend-free site) for broken internal links/asset references, the
+full required meta-tag set on every page, sitemap accuracy, and a cheap scan for accidentally-
+committed secret-shaped strings. All checks currently pass.
+
+**Rollback**: this is a plain static site on a single branch with no build step -- a bad deploy is
+just a bad commit. `git revert` the commit (or push the previous commit's tree) and re-push; GitHub
+Pages redeploys the new HEAD automatically within about a minute. No blue-green/traffic-shifting
+infrastructure is needed or justified at this scale.
+
 ## Quality pass performed (objective checks, not invented metrics)
 - **Accessibility**: semantic headings, a skip-link to `#main` on every page, visible keyboard focus
   (`:focus-visible`, never suppressed), `lang="en"`, real `alt`-equivalent text context (no
