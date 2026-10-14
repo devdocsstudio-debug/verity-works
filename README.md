@@ -51,11 +51,27 @@ consequential, owner-only actions.
   meaningful images needing alt text — code/data shown as real text, not screenshots).
 - **Mobile responsiveness**: fluid type (`clamp()`), card grids collapse to one column under 560px,
   no fixed pixel widths wider than content.
-- **Performance**: zero JavaScript, zero images, two Google Fonts requests per page (same CDN
-  already used throughout this portfolio's other artifacts) — total page weight is a few KB of HTML
-  and one shared CSS file.
-- **Security**: no inline event handlers, no third-party scripts at all, GitHub Pages serves over
-  HTTPS automatically; no secrets anywhere in this folder (checked).
+- **Performance**: zero images, two Google Fonts requests per page (same CDN already used
+  throughout this portfolio's other artifacts) — total page weight is a few KB of HTML and one
+  shared CSS file, plus one tiny first-party script (`assets/ref-tracking.js`, no network calls) and
+  one optional analytics script (see below, inert by default).
+- **Security**: no inline event handlers, no secrets anywhere in this folder (checked). One
+  first-party script (`assets/ref-tracking.js`) only reads the page's own URL and rewrites mailto
+  links — no data leaves the browser. One third-party script (GoatCounter, see "Analytics" below) is
+  shipped commented out and loads nothing until a real account is wired in.
+
+## Analytics (added 2026-10-14, opt-in)
+GitHub's own repo traffic API measures visits to the repo page on github.com, not this published
+site — confirmed from GitHub's docs, not assumed. [GoatCounter](https://www.goatcounter.com) (free,
+no cookies, no personal data collected) is wired in but shipped **commented out** in every page, so
+no tracking script loads and no data is sent anywhere until you deliberately activate it:
+1. Create a free account at goatcounter.com (owner-only — not done by the agent)
+2. Run `./set-analytics-code.sh <your-site-code>` — fills in your real code and uncomments the tag
+3. Review the diff, then commit and push
+
+Separately, `assets/ref-tracking.js` is always on and needs no account: it reads a `?ref=<channel>`
+query param on the landing URL and appends it to that page's mailto inquiry link, so a reply shows
+which channel it came from even before analytics is activated.
 - **Cross-browser**: no bleeding-edge CSS (no `:has()`, no subgrid) — flexbox/grid/custom
   properties only, supported in every browser from roughly 2020 onward.
 - **SEO fundamentals**: unique `<title>`/`<meta description>` per page, Open Graph tags, a real
