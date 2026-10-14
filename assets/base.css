@@ -1,24 +1,18 @@
 /* Verity Works -- shared base stylesheet. Plain CSS, no build step, no framework --
-   justified by the project's actual size (5 static pages, no dynamic data). */
+   justified by the project's actual size (5 static pages, no dynamic data).
+
+   Visual identity: black & gold, deliberately restrained. One accent (champagne gold),
+   one secondary metal (bronze, used only to mark quoted/evidence content), no gradients
+   as decoration, no glow except the one hero moment and interactive states. */
 
 :root {
-  --bg: #EAE3D3; --surface: #FFFDF7; --ink: #201D16; --ink-soft: #5C5544; --rule: #D3C9AE;
-  --accent: #1F4D3E; --accent-soft: #E4EEE9; --accent-ink: #163A2F; --stamp: #8C4A2F;
-  --focus: #1657C9;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #161712; --surface: #1F2019; --ink: #ECE6D6; --ink-soft: #BFB7A1; --rule: #3A3A2C;
-    --accent: #6FBF9E; --accent-soft: #203A30; --accent-ink: #9FDCC2; --stamp: #D98F6E; --focus: #7FB0FF;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #161712; --surface: #1F2019; --ink: #ECE6D6; --ink-soft: #BFB7A1; --rule: #3A3A2C;
-  --accent: #6FBF9E; --accent-soft: #203A30; --accent-ink: #9FDCC2; --stamp: #D98F6E; --focus: #7FB0FF;
+  --bg: #0B0A08; --surface: #16140F; --surface-2: #1D1A13; --ink: #EFE7D3; --ink-soft: #A89C7E;
+  --rule: #2A2620; --accent: #C6A355; --accent-bright: #E4C878; --accent-ink: #D9B86B;
+  --accent-soft: #1D1811; --stamp: #9B7B4F; --focus: #F0DDA0;
 }
 
 * { box-sizing: border-box; }
-html { color-scheme: light dark; }
+html { color-scheme: dark; }
 body {
   background: var(--bg); color: var(--ink); margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -27,12 +21,13 @@ body {
 /* Serif carries the narrative voice (headlines, brand mark); monospace carries anything
    meant to be checked against a source (prices, dates, data) -- a deliberate split tied
    to the one thing this whole site is about: what's asserted vs. what's verifiable. */
-h1, h2, .mark { font-family: 'Fraunces', Georgia, serif; }
+h1, h2, .mark { font-family: 'Fraunces', Georgia, serif; color: var(--ink); }
 .verifiable { font-family: 'IBM Plex Mono', ui-monospace, monospace; }
 a { color: var(--accent-ink); }
 img { max-width: 100%; }
 
-/* Accessibility: visible keyboard focus everywhere, never suppressed */
+/* Accessibility: visible keyboard focus everywhere, never suppressed. Gold-white
+   against near-black clears WCAG AA with real margin. */
 a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
   outline: 3px solid var(--focus); outline-offset: 2px;
 }
@@ -40,7 +35,7 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* Skip link: hidden until focused, real target #main on every page */
 .skip-link {
   position: absolute; left: -999px; top: 0; background: var(--accent); color: var(--bg);
-  padding: 10px 16px; border-radius: 0 0 8px 0; z-index: 100; font-weight: 600; text-decoration: none;
+  padding: 10px 16px; border-radius: 0 0 6px 0; z-index: 100; font-weight: 600; text-decoration: none;
 }
 .skip-link:focus { left: 0; }
 
@@ -48,22 +43,22 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 
 /* Site header / nav -- real navigation across all 5 pages, not a single orphaned page */
 .site-header {
-  border-bottom: 1px solid var(--rule); padding-block: 16px; margin-bottom: 8px;
+  border-bottom: 1px solid var(--rule); padding-block: 18px; margin-bottom: 8px;
 }
 .site-header .wrap { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-.site-header .mark { font-size: 18px; font-weight: 600; text-decoration: none; color: var(--ink); }
-.site-nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 14px; }
-.site-nav a { text-decoration: none; color: var(--ink-soft); }
-.site-nav a[aria-current="page"] { color: var(--accent-ink); font-weight: 600; }
-.site-nav a:hover { color: var(--accent-ink); }
+.site-header .mark { font-size: 19px; font-weight: 600; text-decoration: none; color: var(--ink); letter-spacing: 0.01em; }
+.site-nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+.site-nav a { text-decoration: none; color: var(--ink-soft); transition: color 160ms ease; }
+.site-nav a[aria-current="page"] { color: var(--accent-bright); font-weight: 600; }
+.site-nav a:hover { color: var(--accent-bright); }
 
-main { padding-block: 44px; }
+main { padding-block: 48px; }
 
-/* A small accent tick stands in for the old uppercase-tracked eyebrow label -- the
-   mark reused from the brand checkmark, not a decorative rule. */
+/* A small diamond tick (the brand checkmark, rotated) stands in for an eyebrow label --
+   gold, not a decorative uppercase/tracked block. */
 .section-label {
   font-family: 'Fraunces', Georgia, serif; font-size: 15px; font-weight: 600; color: var(--ink);
-  margin: 44px 0 14px; display: flex; align-items: center; gap: 9px;
+  margin: 48px 0 16px; display: flex; align-items: center; gap: 10px;
 }
 .section-label::before {
   content: ""; width: 7px; height: 11px; flex-shrink: 0;
@@ -71,11 +66,13 @@ main { padding-block: 44px; }
   transform: rotate(45deg) translateY(-2px);
 }
 
-/* A record, not an app card: sharp corner, a left spine instead of an all-around
-   rounded box, no shadow -- closer to an index card or a ledger entry than a SaaS tile. */
+/* A credential, not an app card: one sharp corner cut (a seal/certificate cue, not a
+   gradient or a shadow), a thin gold top edge, dark surface on dark surface. The cut
+   corner is the one recurring geometric detail -- used once per card, not layered. */
 .card {
-  background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--accent);
-  border-radius: 2px; padding: 20px 22px;
+  background: var(--surface); border: 1px solid var(--rule); border-top: 2px solid var(--accent);
+  padding: 20px 22px; position: relative;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
 }
 
 .pill {
@@ -84,20 +81,39 @@ main { padding-block: 44px; }
 }
 
 .btn {
-  display: inline-block; background: var(--accent); color: var(--bg); padding: 11px 20px;
-  border-radius: 3px; text-decoration: none; font-weight: 600; font-size: 14.5px;
+  display: inline-block; background: var(--accent); color: #141008; padding: 12px 22px;
+  border-radius: 2px; text-decoration: none; font-weight: 700; font-size: 14.5px;
+  transition: background 160ms ease, box-shadow 160ms ease;
 }
+.btn:hover { background: var(--accent-bright); box-shadow: 0 0 0 1px var(--accent-bright), 0 0 22px -6px var(--accent-bright); }
 .btn:focus-visible { outline-offset: 3px; }
 
 .site-footer {
-  border-top: 1px solid var(--rule); margin-top: 48px; padding-block: 24px;
+  border-top: 1px solid var(--rule); margin-top: 52px; padding-block: 26px;
   font-size: 12.5px; color: var(--ink-soft); text-align: center;
 }
+.site-footer a { color: var(--accent-ink); }
 .site-footer .sep { display: block; margin-top: 4px; }
 @media (min-width: 480px) {
   .site-footer .sep { display: inline; margin-top: 0; margin-left: 10px; }
 }
 
 @media (max-width: 560px) {
-  main { padding-block: 28px; }
+  main { padding-block: 32px; }
+}
+
+/* The one deliberate glow: a quiet radial wash behind the homepage hero only, applied
+   via .hero-glow where used -- not repeated on every section. */
+.hero-glow {
+  position: relative;
+}
+.hero-glow::before {
+  content: ""; position: absolute; top: -60px; left: -80px; width: 520px; height: 420px;
+  background: radial-gradient(circle, rgba(198,163,85,0.16) 0%, rgba(198,163,85,0) 70%);
+  pointer-events: none; z-index: 0;
+}
+.hero-glow > * { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
 }

@@ -29,13 +29,12 @@
 }
 </script>
 <style>
-  .quote-card { background: #1E2420; color: #EDE8DC; border-radius: 2px; padding: 18px 20px; margin: 24px 0; border-left: 3px solid var(--stamp); }
-  :root[data-theme="dark"] .quote-card, :root:not([data-theme="light"]) .quote-card { background: #0E120B; }
-  .quote-card .src { font-size: 11.5px; color: #B9B3A0; margin-bottom: 8px; }
-  .quote-card .q { font-size: 16px; font-style: italic; }
+  .quote-card { background: #1A140C; color: var(--ink); border-radius: 2px; padding: 18px 20px; margin: 24px 0; border-left: 3px solid var(--stamp); }
+  .quote-card .src { font-size: 11.5px; color: var(--ink-soft); margin-bottom: 8px; }
+  .quote-card .q { font-size: 16px; font-style: italic; color: var(--accent-bright); }
   .tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   @media (max-width: 560px) { .tier-grid { grid-template-columns: 1fr; } }
-  .status-note { background: var(--accent-soft); border-radius: 2px; padding: 14px 16px; font-size: 13.5px; }
+  .status-note { background: var(--accent-soft); border: 1px solid var(--rule); border-radius: 2px; padding: 14px 16px; font-size: 13.5px; }
 </style>
 </head>
 <body>
