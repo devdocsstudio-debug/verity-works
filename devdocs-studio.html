@@ -74,12 +74,11 @@ target.addPage(copiedPage);</pre>
   </div>
   <div class="card">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">jsonwebtoken — Algorithm-Confusion Check</p>
-    <pre class="code-sample">// no `algorithms` option passed at all
+    <pre class="code-sample">// jwt.verify() with NO `algorithms` option -- jsonwebtoken@9 default behavior
 jwt.verify(forgedHS256Token, rsaPublicKey);
-// -&gt; v9 infers the key is RSA and rejects it: "invalid algorithm"
-//    (the classic RS256-&gt;HS256 attack is already mitigated by default --
-//    but only while the key still parses as a real key)</pre>
-    <p class="gotcha"><b>The gotcha most guides miss:</b> if the public key's PEM header/footer gets stripped (a real mistake — env vars and .env parsers do this), <code>jsonwebtoken</code> silently falls back to treating it as an HMAC secret and the attack works again. Pin <code>{ algorithms: ['RS256'] }</code> explicitly to make the protection unconditional.</p>
+// -&gt; REJECTED: "invalid algorithm". The classic RS256-&gt;HS256 attack is
+//    already mitigated by default. Correct library behavior, not a bug.</pre>
+    <p class="gotcha"><b>Not a library vulnerability — an edge case worth knowing:</b> that default protection depends on the key still parsing as a real key. If its PEM BEGIN/END envelope markers are lost (confirmed by the maintainer: internal line breaks don't matter, but the envelope lines always must be present — <a href="https://github.com/auth0/node-jsonwebtoken/issues/669" target="_blank" rel="noopener">auth0/node-jsonwebtoken#669</a>), verification falls back to treating the value as a plain secret. That's not a quiet backdoor, though: a real user's own legitimate token fails the exact same way in that state, so it surfaces as a total login outage, not a hidden exploit. Pin <code>{ algorithms: ['RS256'] }</code> explicitly anyway — cheap, unconditional defense-in-depth either way.</p>
   </div>
 
   <div class="section-label">Order</div>
