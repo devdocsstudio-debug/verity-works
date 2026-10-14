@@ -65,12 +65,21 @@
 });</pre>
     <p class="gotcha"><b>The gotcha most guides miss:</b> the transaction only rolls back on a thrown JS error — an UPDATE matching zero rows doesn't throw.</p>
   </div>
-  <div class="card">
+  <div class="card" style="margin-bottom:14px;">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">pdf-lib — Quick Reference</p>
     <pre class="code-sample">const target = await PDFDocument.create();
 const [copiedPage] = await target.copyPages(sourceDoc, [0]);
 target.addPage(copiedPage);</pre>
     <p class="gotcha"><b>The gotcha most guides miss:</b> <code>copyPages</code> is called on the destination document, with the source as an argument.</p>
+  </div>
+  <div class="card">
+    <p style="font-weight:600; font-size:14px; margin:0 0 10px;">jsonwebtoken — Algorithm-Confusion Check</p>
+    <pre class="code-sample">// no `algorithms` option passed at all
+jwt.verify(forgedHS256Token, rsaPublicKey);
+// -&gt; v9 infers the key is RSA and rejects it: "invalid algorithm"
+//    (the classic RS256-&gt;HS256 attack is already mitigated by default --
+//    but only while the key still parses as a real key)</pre>
+    <p class="gotcha"><b>The gotcha most guides miss:</b> if the public key's PEM header/footer gets stripped (a real mistake — env vars and .env parsers do this), <code>jsonwebtoken</code> silently falls back to treating it as an HMAC secret and the attack works again. Pin <code>{ algorithms: ['RS256'] }</code> explicitly to make the protection unconditional.</p>
   </div>
 
   <div class="section-label">Order</div>
@@ -95,7 +104,7 @@ target.addPage(copiedPage);</pre>
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, or their maintainers. &middot; <a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></div>
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, jsonwebtoken, or their maintainers. &middot; <a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></div>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <!-- GoatCounter disabled until a real account exists -- run set-analytics-code.sh to enable:
