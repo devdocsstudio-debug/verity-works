@@ -23,10 +23,15 @@ const SRC = path.join(DIR, "..", "..", "drafts");
 const BASE = "https://devdocsstudio-debug.github.io/verity-works/";
 
 // Each sample: its markdown source, output page, and the metadata the site's verifier requires.
+// `pkg` drives the footer's non-affiliation disclaimer. It used to be one hardcoded string listing
+// better-sqlite3, pdf-lib AND jsonwebtoken on every page -- copied from devdocs-studio.html, where
+// it is correct -- so the Zod page disclaimed a library that appears nowhere on it and failed to
+// disclaim the one it actually documents. A disclaimer naming the wrong package is worse than none.
 const SAMPLES = [
   {
     src: "API_DOCS_PORTFOLIO_SAMPLE.md",
     out: "sample-better-sqlite3.html",
+    pkg: "better-sqlite3",
     title: "better-sqlite3 Common Patterns — Writing Sample — Verity Works",
     description: "A writing sample: the five better-sqlite3 patterns that come up in almost every real project, with examples run against the real package.",
     ogTitle: "better-sqlite3 Common Patterns (writing sample)",
@@ -34,6 +39,7 @@ const SAMPLES = [
   {
     src: "API_DOCS_PORTFOLIO_SAMPLE_2.md",
     out: "sample-pdf-lib.html",
+    pkg: "pdf-lib",
     title: "pdf-lib Quick Reference — Writing Sample — Verity Works",
     description: "A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.",
     ogTitle: "pdf-lib Quick Reference (writing sample)",
@@ -42,6 +48,7 @@ const SAMPLES = [
   {
     src: "API_DOCS_PORTFOLIO_SAMPLE_3.md",
     out: "sample-zod-v4.html",
+    pkg: "zod",
     title: "Zod v4 Validation Behavior — Writing Sample — Verity Works",
     description: "A writing sample: the five Zod v4 behaviors that surprise people — parse vs safeParse, unknown keys, coercion, optionality, and transform/refine ordering.",
     ogTitle: "Zod v4 Validation Behavior (writing sample)",
@@ -68,8 +75,17 @@ function inline(text) {
   return s.replace(/\u0000(\d+)\u0000/g, (_, i) => spans[Number(i)]);
 }
 
-/** A deliberately small markdown subset -- exactly what these samples use. An unsupported
- *  construct becomes a paragraph rather than being silently dropped. */
+/** A deliberately small markdown subset -- exactly what these samples use: headings, fenced
+ *  code, blockquotes, hr, paragraphs, and inline code/links/emphasis.
+ *
+ *  An unsupported construct now THROWS, naming the line. The previous comment here claimed it
+ *  "becomes a paragraph rather than being silently dropped," which was true but worse than it
+ *  sounds: a bullet list came out as a mangled run-on sentence that looked fine to the generator
+ *  and broken to a reader. Verified 2026-10-16 by running this function directly --
+ *  "- first\n- second\n  - nested" produced "<p>- first - second   - nested</p>", and a pipe
+ *  table produced "<p>| a | b | |---|---| | 1 | 2 |</p>". None of the three current samples use
+ *  either construct, so this is a guard for the next deliverable, not a fix for a live defect.
+ *  Add real list/table support when a sample actually needs one -- loud failure until then. */
 function mdToHtml(md) {
   const lines = md.split(/\r?\n/);
   const out = [];
@@ -82,13 +98,16 @@ function mdToHtml(md) {
       i++;
       while (i < lines.length && !/^```/.test(lines[i])) body.push(lines[i++]);
       i++; // closing fence
-      out.push(`<pre><code${lang ? ` class="language-${lang}"` : ""}>${esc(body.join("\n"))}</code></pre>`);
+      // tabindex + an accessible name because .sample pre scrolls horizontally: a scrollable
+      // region that only a mouse can scroll hides real content from keyboard users (WCAG 2.1.1).
+      out.push(`<pre tabindex="0" role="region" aria-label="Code sample"><code${lang ? ` class="language-${lang}"` : ""}>${esc(body.join("\n"))}</code></pre>`);
       continue;
     }
     if (/^#{1,6}\s/.test(line)) {
       const level = line.match(/^#+/)[0].length;
-      // The markdown's own h1 becomes the page h1; deeper levels shift down by one so the page
-      // keeps exactly one h1 and no heading level is skipped.
+      // Emitted at the source's own level. This relies on each source having exactly one `#`,
+      // which verify-site.js enforces as a hard check (one h1 per page) rather than this
+      // generator silently renumbering headings.
       out.push(`<h${level}>${inline(line.replace(/^#+\s*/, ""))}</h${level}>`);
       i++;
       continue;
@@ -101,8 +120,18 @@ function mdToHtml(md) {
     }
     if (/^---+\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
     if (/^\s*$/.test(line)) { i++; continue; }
+    if (/^\s*([-*+]|\d+\.)\s/.test(line)) {
+      throw new Error(`markdown line ${i + 1} is a list item, which this generator does not ` +
+        `support and would render as a run-on paragraph: ${JSON.stringify(line)}`);
+    }
+    if (/^\s*\|/.test(line)) {
+      throw new Error(`markdown line ${i + 1} is a table row, which this generator does not ` +
+        `support and would render as a run-on paragraph: ${JSON.stringify(line)}`);
+    }
     const para = [];
-    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^```/.test(lines[i]) && !/^#{1,6}\s/.test(lines[i]) && !/^>/.test(lines[i]) && !/^---+\s*$/.test(lines[i])) {
+    // The list/table patterns are repeated here, not just guarded above: without them a list
+    // following a prose line is absorbed into that paragraph and never reaches the throw.
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^```/.test(lines[i]) && !/^#{1,6}\s/.test(lines[i]) && !/^>/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) && !/^\s*([-*+]|\d+\.)\s/.test(lines[i]) && !/^\s*\|/.test(lines[i])) {
       para.push(lines[i++]);
     }
     out.push(`<p>${inline(para.join(" "))}</p>`);
@@ -132,15 +161,33 @@ function page(sample, bodyHtml) {
 <meta name="twitter:title" content="${sample.ogTitle}">
 <meta name="twitter:description" content="${sample.description}">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
-  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 6px; background: #12161c; color: #e6edf3; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
+     version of this block was GitHub-dark (#12161c blue-grey, 6px radii) against a site whose
+     background is warm near-black with 2px radii -- it read as a panel borrowed from another
+     site. These values match .code-sample on devdocs-studio.html, the page these samples sell. */
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 2px; background: #050402; color: #E4C878; border: 1px solid var(--rule); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Ligatures OFF deliberately. JetBrains Mono renders => as an arrow glyph and -> as a single
+     arrow, and on the Zod sample that is genuinely ambiguous: z.prettifyError's real output
+     contains a literal arrow, so a reader could not tell observed output from rendered source.
+     For a document whose pitch is "this is the real output," that distinction has to survive. */
+  .sample pre, .sample code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
   .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
-  .sample :not(pre) > code { background: rgba(127,127,127,.14); padding: .12em .35em; border-radius: 4px; }
-  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--rule, #d7d2c7); color: var(--ink-soft); font-size: 14.5px; }
+  .sample :not(pre) > code { background: var(--surface-2); padding: .12em .35em; border-radius: 2px; }
+  /* --stamp is the bronze token base.css defines for quoted/evidence content, which is exactly
+     what the scope note is. It was var(--rule) at a 1.32:1 contrast, i.e. invisible -- so the
+     one paragraph that frames the whole page as an independent sample read as grey filler. */
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--stamp); color: var(--ink-soft); font-size: 14.5px; }
   .sample h2 { margin-top: 32px; }
+  /* base.css gives the serif to h1/h2/.mark only, so an h3 fell back to the body sans-serif and
+     the closing section -- the last thing a reviewer reads -- looked like a bolded paragraph. */
+  .sample h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; margin-top: 30px; }
   .sample p { max-width: 68ch; }
+  /* A scrollable region has to be reachable without a mouse (WCAG 2.1.1), and once <pre> is
+     focusable it needs a visible focus ring -- base.css's rule covers only a, button, input. */
+  .sample pre:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -167,7 +214,7 @@ example is run against the real package before it is published. Other samples: $
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, jsonwebtoken, or their maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with ${sample.pkg} or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>

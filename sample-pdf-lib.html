@@ -14,15 +14,33 @@
 <meta name="twitter:title" content="pdf-lib Quick Reference (writing sample)">
 <meta name="twitter:description" content="A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
-  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 6px; background: #12161c; color: #e6edf3; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
+     version of this block was GitHub-dark (#12161c blue-grey, 6px radii) against a site whose
+     background is warm near-black with 2px radii -- it read as a panel borrowed from another
+     site. These values match .code-sample on devdocs-studio.html, the page these samples sell. */
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 2px; background: #050402; color: #E4C878; border: 1px solid var(--rule); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Ligatures OFF deliberately. JetBrains Mono renders => as an arrow glyph and -> as a single
+     arrow, and on the Zod sample that is genuinely ambiguous: z.prettifyError's real output
+     contains a literal arrow, so a reader could not tell observed output from rendered source.
+     For a document whose pitch is "this is the real output," that distinction has to survive. */
+  .sample pre, .sample code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
   .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
-  .sample :not(pre) > code { background: rgba(127,127,127,.14); padding: .12em .35em; border-radius: 4px; }
-  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--rule, #d7d2c7); color: var(--ink-soft); font-size: 14.5px; }
+  .sample :not(pre) > code { background: var(--surface-2); padding: .12em .35em; border-radius: 2px; }
+  /* --stamp is the bronze token base.css defines for quoted/evidence content, which is exactly
+     what the scope note is. It was var(--rule) at a 1.32:1 contrast, i.e. invisible -- so the
+     one paragraph that frames the whole page as an independent sample read as grey filler. */
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--stamp); color: var(--ink-soft); font-size: 14.5px; }
   .sample h2 { margin-top: 32px; }
+  /* base.css gives the serif to h1/h2/.mark only, so an h3 fell back to the body sans-serif and
+     the closing section -- the last thing a reviewer reads -- looked like a bolded paragraph. */
+  .sample h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; margin-top: 30px; }
   .sample p { max-width: 68ch; }
+  /* A scrollable region has to be reachable without a mouse (WCAG 2.1.1), and once <pre> is
+     focusable it needs a visible focus ring -- base.css's rule covers only a, button, input. */
+  .sample pre:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -43,21 +61,28 @@
 <main id="main" class="wrap sample">
 <h1>pdf-lib: Quick Reference for Creating and Modifying PDFs in Node.js</h1>
 <p><em>A task-oriented reference for the five operations every pdf-lib project eventually needs — not a method-by-method dump of the API surface.</em></p>
-<blockquote><strong>Sample scope note:</strong> this is a portfolio writing sample for the freelance API/developer-documentation candidate, not an official or commissioned document. It documents the real, public <code>pdf-lib</code> npm package by reading its source and type definitions directly. Every code example below was executed against the actual installed library before publication.</blockquote>
+<blockquote><strong>Sample scope note:</strong> this is a portfolio writing sample for the freelance API/developer-documentation candidate, not an official or commissioned document. It documents the real, public <code>pdf-lib</code> npm package at <strong>version 1.17.1</strong> by reading its source and type definitions directly. Every code example and every stated behavior below was executed against that installed version before publication — the verification script is <code>sample-pdf-lib-claims-verify.js</code>.</blockquote>
 <hr>
 <h2>Create a new PDF and draw text on it</h2>
-<pre><code class="language-js">const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 
 const doc = await PDFDocument.create();
 const font = await doc.embedFont(StandardFonts.Helvetica);
-const page = doc.addPage([400, 200]); // [width, height] in points; omit the array for a default US-Letter page
+// [width, height] in points; omit the array and you get A4, not US Letter
+const page = doc.addPage([400, 200]);
 
 page.drawText('Hello, pdf-lib', { x: 50, y: 120, size: 24, font, color: rgb(0, 0, 0) });
 
 const bytes = await doc.save(); // Uint8Array — write it to disk, a response body, or an S3 upload</code></pre>
-<p>Two things that trip people up on the first pass: <code>drawText</code>'s <code>y</code> is measured <strong>from the bottom of the page</strong>, not the top (so <code>y: 120</code> on a 200pt-tall page is near the middle, not near the bottom). And a font must be embedded and passed explicitly to every <code>drawText</code> call — there is no page-wide default font to fall back on.</p>
+<p>Three things that trip people up on the first pass.</p>
+<p><code>drawText</code>'s <code>y</code> is measured <strong>from the bottom of the page</strong>, not the top — so <code>y: 120</code> on a 200pt-tall page is near the middle, not near the bottom.</p>
+<p><code>addPage()</code> with no size argument gives you <strong>A4</strong> (595.28 × 841.89 points), not US Letter. If you want Letter, pass it explicitly — <code>PageSizes</code> is exported alongside <code>PDFDocument</code>, so <code>doc.addPage(PageSizes.Letter)</code>, or the literal <code>[612, 792]</code>.</p>
+<p>And the <code>font</code> option is <strong>optional, which is the trap</strong> — not required. Omit it and pdf-lib quietly embeds Helvetica for you rather than raising an error, so a document whose font never loaded looks like a document that chose Helvetica. <code>page.setFont(font)</code> sets a page-wide default for every subsequent <code>drawText</code> on that page, which is the cleaner way to avoid threading <code>font</code> through every call:</p>
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const times = await doc.embedFont(StandardFonts.TimesRoman);
+page.setFont(times);
+page.drawText('uses the page default', { x: 50, y: 80, size: 14 }); // no font option needed</code></pre>
 <h2>Load an existing PDF and add a page</h2>
-<pre><code class="language-js">const existingBytes = fs.readFileSync('input.pdf');
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const existingBytes = fs.readFileSync('input.pdf');
 const doc = await PDFDocument.load(existingBytes);
 
 const page = doc.addPage(); // appended after the existing pages
@@ -66,22 +91,26 @@ page.drawText('Appended page', { x: 50, y: page.getHeight() - 50, size: 18 });
 fs.writeFileSync('output.pdf', await doc.save());</code></pre>
 <p><code>PDFDocument.load()</code> parses the whole file into an in-memory document object — there's no streaming/partial-load mode. For very large PDFs (hundreds of MB) this matters for memory use; for typical generated reports and forms it's a non-issue.</p>
 <h2>Merge pages from one PDF into another</h2>
-<pre><code class="language-js">const target = await PDFDocument.create();
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const target = await PDFDocument.create();
 const [copiedPage] = await target.copyPages(sourceDoc, [0]); // indices of pages to copy, 0-based
 target.addPage(copiedPage);</code></pre>
 <p><code>copyPages</code> is called <strong>on the destination document</strong>, with the source document and an array of page indices as arguments — the direction of the call is the opposite of what most people guess on the first try (<code>target.copyPages(source, ...)</code>, not <code>source.copyPages(target, ...)</code>). The returned pages aren't attached to the target automatically; each one still needs an explicit <code>addPage()</code>.</p>
 <h2>Getting and checking page count/size</h2>
-<pre><code class="language-js">doc.getPageCount();         // number of pages currently in the document
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">doc.getPageCount();         // number of pages currently in the document
 doc.getPage(0).getSize();   // { width, height } in points for a specific page</code></pre>
 <p>Useful for defensive code before an append/merge operation (e.g. "has this PDF already got a cover page?") without re-parsing the file a second time.</p>
 <h2>Fill in a form field (when the source PDF has one)</h2>
-<pre><code class="language-js">const form = doc.getForm();
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const form = doc.getForm();
 form.getTextField('applicant_name').setText('Ada Lovelace');
 form.flatten(); // optional: bakes the filled values into the page content and removes the editable field</code></pre>
-<p><code>getForm()</code> throws if the PDF has no AcroForm at all — worth a try/catch (or an explicit check) rather than assuming every PDF a pipeline receives is fillable.</p>
+<p><code>getForm()</code> does <strong>not</strong> throw when the PDF has no form — that is the trap worth knowing. On a form-less document it returns an empty <code>PDFForm</code> (<code>getFields().length === 0</code>) and <em>adds</em> an AcroForm to the document, so a pipeline that calls <code>getForm()</code> defensively on every file quietly changes files that never had a form. The call that actually throws is the field lookup:</p>
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">form.getTextField('applicant_name');
+// throws Error: PDFDocument has no form field with the name "applicant_name"</code></pre>
+<p>So check <code>form.getFields().length</code> (or wrap the <code>getTextField</code> call) rather than relying on <code>getForm()</code> to tell you whether a PDF is fillable.</p>
 <hr>
-<h3>Why this is a reference, not a tutorial</h3>
+<h2>Why this is a reference, not a tutorial</h2>
 <p>Each section above answers one question a working developer actually has mid-task ("how do I add a page to a PDF I already have") rather than walking through pdf-lib feature-by-feature from the top. That's the shape most API documentation gaps take in practice: the official docs cover what exists, but not which combination of calls gets a specific real job done.</p>
+<p>Every behavior above was confirmed by running it against <code>pdf-lib@1.17.1</code> on Node v24.21.0 in October 2026. Four of the statements on this page read differently before that run: the default page size, whether the <code>font</code> option is required, whether a page-wide default font exists, and what <code>getForm()</code> does to a PDF with no form. Each is now what the library actually does rather than what the API surface suggests it should — which is the only reason to run the examples instead of describing them.</p>
 <hr>
 <p style="font-size:14px; color:var(--ink-soft);">This is one of the published writing samples for
 <a href="devdocs-studio.html">DevDocs Studio</a> — API and developer documentation where every code
@@ -89,7 +118,7 @@ example is run against the real package before it is published. Other samples: <
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, jsonwebtoken, or their maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with pdf-lib or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>

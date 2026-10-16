@@ -110,6 +110,42 @@ for (const page of [...PAGES, "404.html"]) {
   else fail(`${page}: ${imgsWithoutAlt.length} img without alt (${imgsWithoutAlt[0].slice(0, 60)})`);
 }
 
+// 4d. Every webfont a page REQUESTS is a font some stylesheet actually uses, and every page that
+// requests fonts at all requests the one the shared stylesheet needs. Added 2026-10-16 after a
+// measured defect: devdocs-studio.html and all three sample pages asked Google Fonts for
+// "Source Serif 4", which no selector anywhere references, and never asked for Fraunces, which
+// base.css applies to h1, h2 and .mark on EVERY page. The result was a live service page whose
+// headings and brand mark silently fell back to Georgia while the home page it links to rendered
+// in Fraunces -- a visible identity break, plus a wasted font download, and nothing failed.
+//
+// A missing font never errors; it just renders in a fallback, which is exactly why this needs a
+// machine check rather than a careful eye. 404.html deliberately requests no webfonts at all (a
+// fast, dependency-free error page), so pages with no font link are skipped rather than failed.
+const cssText = ["assets/base.css"]
+  .map((f) => (fs.existsSync(path.join(DIR, f)) ? fs.readFileSync(path.join(DIR, f), "utf8") : ""))
+  .join("\n");
+for (const page of [...PAGES, "404.html"]) {
+  const fp = path.join(DIR, page);
+  if (!fs.existsSync(fp)) continue;
+  const text = fs.readFileSync(fp, "utf8");
+  const link = (text.match(/fonts\.googleapis\.com\/css2\?([^"']+)/) || [])[1];
+  if (!link) { ok(`${page}: requests no webfonts (nothing to mismatch)`); continue; }
+
+  // "Fraunces:opsz,wght@9..144,500" -> "Fraunces"; "JetBrains+Mono" -> "JetBrains Mono".
+  const requested = [...link.matchAll(/family=([^:&]+)/g)]
+    .map((m) => decodeURIComponent(m[1]).replace(/\+/g, " "));
+  // A page's own <style> block counts as "used" -- the samples set JetBrains Mono inline.
+  const usedIn = cssText + text;
+  const unused = requested.filter((f) => !usedIn.includes(f));
+  if (unused.length === 0) ok(`${page}: every requested webfont (${requested.join(", ")}) is used`);
+  else fail(`${page}: requests webfont(s) nothing uses: ${unused.join(", ")} -- wasted download, and ` +
+    `usually a sign the page is falling back for a font it should have asked for instead`);
+
+  if (requested.includes("Fraunces")) ok(`${page}: requests Fraunces, which base.css needs for h1/h2/.mark`);
+  else fail(`${page}: does not request Fraunces, but base.css styles h1, h2 and .mark with it -- ` +
+    `headings and the brand mark will silently fall back to Georgia`);
+}
+
 // 5. No accidentally-committed secret-shaped strings (a cheap, real safety net -- not a
 // substitute for not committing secrets in the first place, but catches an honest mistake).
 const SECRET_PATTERNS = [/client_secret["\s:=]+["'][A-Za-z0-9_\-]{10,}/i, /-----BEGIN (RSA |EC )?PRIVATE KEY-----/, /AKIA[0-9A-Z]{16}/];

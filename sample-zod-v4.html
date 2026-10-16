@@ -14,15 +14,33 @@
 <meta name="twitter:title" content="Zod v4 Validation Behavior (writing sample)">
 <meta name="twitter:description" content="A writing sample: the five Zod v4 behaviors that surprise people — parse vs safeParse, unknown keys, coercion, optionality, and transform/refine ordering.">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
-  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 6px; background: #12161c; color: #e6edf3; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
+     version of this block was GitHub-dark (#12161c blue-grey, 6px radii) against a site whose
+     background is warm near-black with 2px radii -- it read as a panel borrowed from another
+     site. These values match .code-sample on devdocs-studio.html, the page these samples sell. */
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 2px; background: #050402; color: #E4C878; border: 1px solid var(--rule); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Ligatures OFF deliberately. JetBrains Mono renders => as an arrow glyph and -> as a single
+     arrow, and on the Zod sample that is genuinely ambiguous: z.prettifyError's real output
+     contains a literal arrow, so a reader could not tell observed output from rendered source.
+     For a document whose pitch is "this is the real output," that distinction has to survive. */
+  .sample pre, .sample code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
   .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
-  .sample :not(pre) > code { background: rgba(127,127,127,.14); padding: .12em .35em; border-radius: 4px; }
-  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--rule, #d7d2c7); color: var(--ink-soft); font-size: 14.5px; }
+  .sample :not(pre) > code { background: var(--surface-2); padding: .12em .35em; border-radius: 2px; }
+  /* --stamp is the bronze token base.css defines for quoted/evidence content, which is exactly
+     what the scope note is. It was var(--rule) at a 1.32:1 contrast, i.e. invisible -- so the
+     one paragraph that frames the whole page as an independent sample read as grey filler. */
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--stamp); color: var(--ink-soft); font-size: 14.5px; }
   .sample h2 { margin-top: 32px; }
+  /* base.css gives the serif to h1/h2/.mark only, so an h3 fell back to the body sans-serif and
+     the closing section -- the last thing a reviewer reads -- looked like a bolded paragraph. */
+  .sample h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; margin-top: 30px; }
   .sample p { max-width: 68ch; }
+  /* A scrollable region has to be reachable without a mouse (WCAG 2.1.1), and once <pre> is
+     focusable it needs a visible focus ring -- base.css's rule covers only a, button, input. */
+  .sample pre:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 </style>
 </head>
 <body>
@@ -43,10 +61,10 @@
 <main id="main" class="wrap sample">
 <h1>Zod v4: Validation Behavior Guide</h1>
 <p><em>The five behaviors that surprise people moving to Zod v4 — parse vs safeParse, unknown keys, coercion, optionality, and the order you chain <code>.transform()</code> and <code>.refine()</code>.</em></p>
-<blockquote><strong>Sample scope note:</strong> this is an independent portfolio writing sample for a freelance API/developer-documentation candidate. It is not an official Zod document, and it is not commissioned client work. It documents the real, public <code>zod</code> npm package at <strong>version 4.6.5</strong> by reading its behavior directly. Every code example and every output shown below was executed against that installed version before publication — no output is assumed, recalled, or illustrative.</blockquote>
+<blockquote><strong>Sample scope note:</strong> this is an independent portfolio writing sample for a freelance API/developer-documentation candidate. It is not an official Zod document, and it is not commissioned client work. It documents the real, public <code>zod</code> npm package at <strong>version 4.6.7</strong> by reading its behavior directly. Every code example and every output shown below was executed against that installed version before publication — no output is assumed, recalled, or illustrative. The verification script is <code>sample-zod-v4-claims-verify.js</code>.</blockquote>
 <hr>
 <h2>1. <code>.parse()</code> throws; <code>.safeParse()</code> returns</h2>
-<pre><code class="language-js">const z = require('zod');
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const z = require('zod');
 
 const User = z.object({ name: z.string(), age: z.number().int().positive() });
 
@@ -56,7 +74,7 @@ User.parse({ name: 'Ada', age: 36 });
 User.parse({ name: 'Ada', age: -1 });
 // throws ZodError</code></pre>
 <p>The thrown <code>ZodError</code> carries an <code>issues</code> array. For the failure above, the single issue is:</p>
-<pre><code class="language-js">{
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">{
   origin: 'number',
   code: 'too_small',
   minimum: 0,
@@ -65,11 +83,11 @@ User.parse({ name: 'Ada', age: -1 });
   message: 'Too small: expected number to be &gt;0'
 }</code></pre>
 <p><code>.safeParse()</code> returns a result object instead of throwing, which is what you want at a request boundary:</p>
-<pre><code class="language-js">const result = User.safeParse({ name: 'Ada', age: -1 });
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const result = User.safeParse({ name: 'Ada', age: -1 });
 result.success;        // -&gt; false
 result.error.issues;   // -&gt; the same issues array as above</code></pre>
 <p><strong>Three error formatters ship in v4</strong>, and they produce genuinely different shapes. Given <code>User.safeParse({ name: 123, age: 'x' })</code>:</p>
-<pre><code class="language-js">z.flattenError(result.error);
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">z.flattenError(result.error);
 // -&gt; { formErrors: [], fieldErrors: {
 //      name: [ 'Invalid input: expected string, received number' ],
 //      age:  [ 'Invalid input: expected number, received string' ] } }
@@ -78,17 +96,17 @@ z.treeifyError(result.error);
 // -&gt; { errors: [], properties: {
 //      name: { errors: [ 'Invalid input: expected string, received number' ] },
 //      age:  { errors: [ 'Invalid input: expected number, received string' ] } } }</code></pre>
-<pre><code class="language-js">console.log(z.prettifyError(result.error));
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">console.log(z.prettifyError(result.error));
 // ✖ Invalid input: expected string, received number
 //   → at name
 // ✖ Invalid input: expected number, received string
 //   → at age</code></pre>
 <p>Use <code>flattenError</code> for a flat form-field map, <code>treeifyError</code> when errors can be nested, and <code>prettifyError</code> for logs and CLI output. Reach for the raw <code>issues</code> array when you need the machine-readable <code>code</code>.</p>
 <h2>2. Unknown keys are stripped by default</h2>
-<pre><code class="language-js">z.object({ a: z.string() }).parse({ a: 'x', extra: 1 });
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">z.object({ a: z.string() }).parse({ a: 'x', extra: 1 });
 // -&gt; { a: 'x' }          the unknown key is silently dropped</code></pre>
 <p>To reject instead, or to keep the extras, use the dedicated constructors:</p>
-<pre><code class="language-js">z.strictObject({ a: z.string() }).parse({ a: 'x', extra: 1 });
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">z.strictObject({ a: z.string() }).parse({ a: 'x', extra: 1 });
 // throws ZodError:
 // { code: 'unrecognized_keys', keys: [ 'extra' ], path: [], message: 'Unrecognized key: "extra"' }
 
@@ -97,20 +115,20 @@ z.looseObject({ a: z.string() }).parse({ a: 'x', extra: 1 });
 <p><strong>Why the default matters more than it looks:</strong> stripping is usually right for an HTTP body, but it means a typo in an optional field name fails silently. <code>{ notifcations: true }</code> validates cleanly against a schema expecting <code>notifications</code> and the value simply vanishes. If a field being misspelled should be an error rather than a no-op, <code>z.strictObject</code> is the only one of the three that tells you.</p>
 <h2>3. Coercion follows JavaScript, not your intent</h2>
 <p>This is the sharpest edge in the library, because <code>z.coerce</code> applies the ordinary JS constructor before validating.</p>
-<pre><code class="language-js">z.coerce.number().parse('42');    // -&gt; 42
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">z.coerce.number().parse('42');    // -&gt; 42
 z.coerce.number().parse('');      // -&gt; 0        &lt;-- empty string becomes zero
 z.coerce.number().parse('abc');   // throws: 'Invalid input: expected number, received NaN'</code></pre>
-<pre><code class="language-js">z.coerce.boolean().parse('false'); // -&gt; true    &lt;-- the STRING "false" is truthy
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">z.coerce.boolean().parse('false'); // -&gt; true    &lt;-- the STRING "false" is truthy
 z.coerce.boolean().parse('');      // -&gt; false</code></pre>
 <p><code>z.coerce.boolean()</code> is <code>Boolean(value)</code>. Every non-empty string is truthy, so <code>'false'</code>, <code>'0'</code> and <code>'no'</code> all coerce to <code>true</code>. For a query parameter like <code>?active=false</code> this is almost never what the caller meant, and nothing in the schema reports a problem.</p>
 <p>When parsing string input where <code>'false'</code> and <code>''</code> must be distinguishable from <code>true</code>, map explicitly instead of coercing:</p>
-<pre><code class="language-js">const BoolParam = z.enum(['true', 'false']).transform((s) =&gt; s === 'true');
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const BoolParam = z.enum(['true', 'false']).transform((s) =&gt; s === 'true');
 
 BoolParam.parse('false');  // -&gt; false
 BoolParam.parse('maybe');  // throws -- an invalid value is rejected rather than silently becoming true</code></pre>
 <p>The same reasoning applies to <code>z.coerce.number()</code> and empty strings: an absent query parameter arriving as <code>''</code> becomes <code>0</code>, which passes a <code>.nonnegative()</code> check and looks like a deliberate zero.</p>
 <h2>4. <code>.optional()</code>, <code>.nullable()</code> and <code>.default()</code> are three different things</h2>
-<pre><code class="language-js">const Shape = z.object({
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const Shape = z.object({
   o: z.string().optional(),
   n: z.string().nullable(),
   d: z.string().default('fallback'),
@@ -120,34 +138,34 @@ Shape.parse({ n: null });
 // -&gt; { n: null, d: 'fallback' }</code></pre>
 <p>Two things to read carefully in that output. The optional key <code>o</code> is <strong>absent from the result</strong> rather than present as <code>undefined</code>, so <code>'o' in result</code> is <code>false</code>. And <code>d</code> was filled in by its default because the input omitted it.</p>
 <p><code>.nullable()</code> accepts <code>null</code> but <strong>not</strong> a missing value:</p>
-<pre><code class="language-js">Shape.parse({ n: undefined });
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">Shape.parse({ n: undefined });
 // throws ZodError:
 // { expected: 'string', code: 'invalid_type', path: [ 'n' ],
 //   message: 'Invalid input: expected string, received undefined' }</code></pre>
 <p>So <code>.nullable()</code> is not a relaxation of required-ness. A field that may be either missing or explicitly null needs both, which is what <code>.nullish()</code> expresses.</p>
 <h2>5. <code>.transform()</code> before <code>.refine()</code> is not the same as after</h2>
 <p>Both of these look like "trim it and reject blanks". Only one does that.</p>
-<pre><code class="language-js">const A = z.string().transform((s) =&gt; s.trim()).refine((s) =&gt; s.length &gt; 0, {
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const A = z.string().transform((s) =&gt; s.trim()).refine((s) =&gt; s.length &gt; 0, {
   message: 'must not be blank after trimming',
 });
 
 A.parse('  hi  ');  // -&gt; 'hi'
 A.parse('   ');     // throws: 'must not be blank after trimming'</code></pre>
-<pre><code class="language-js">const B = z.string().refine((s) =&gt; s.length &gt; 0, { message: 'must not be blank' })
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const B = z.string().refine((s) =&gt; s.length &gt; 0, { message: 'must not be blank' })
                     .transform((s) =&gt; s.trim());
 
 B.parse('   ');     // -&gt; ''        no error at all</code></pre>
 <p>In <code>B</code>, the refinement runs on the original <code>'   '</code>, which has length 3 and passes. The trim happens afterwards, so an empty string is returned as valid data. The check and the normalization are both present and the schema still accepts exactly the input it was written to reject.</p>
 <p><strong>The rule: normalize first, then validate the normalized value.</strong> Any check whose outcome depends on a transformation has to come after it.</p>
 <p>A transformed value is also what you get back from <code>.safeParse()</code>, not the input:</p>
-<pre><code class="language-js">const Num = z.string().transform((s) =&gt; Number(s));
+<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const Num = z.string().transform((s) =&gt; Number(s));
 const r = Num.safeParse('7');
 r.data;         // -&gt; 7
 typeof r.data;  // -&gt; 'number'</code></pre>
 <hr>
-<h3>Why a guide like this, separate from the API reference</h3>
+<h2>Why a guide like this, separate from the API reference</h2>
 <p>The official documentation accurately states that <code>z.coerce.boolean()</code> performs boolean coercion and that <code>.refine()</code> adds a custom check. Both statements are true, and neither tells you that <code>'false'</code> becomes <code>true</code>, or that putting <code>.refine()</code> before <code>.transform()</code> quietly accepts the input you meant to reject. That gap — between what each method does and what goes wrong the first time someone uses it — is what this kind of documentation is written to close.</p>
-<p>Every behavior above was confirmed by running it against <code>zod@4.6.5</code> on Node v24.21.0. Where a result looks surprising, it is the real observed output, not a simplification.</p>
+<p>Every behavior above was confirmed by running it against <code>zod@4.6.7</code> on Node v24.21.0 in October 2026. Where a result looks surprising, it is the real observed output, not a simplification.</p>
 <hr>
 <p style="font-size:14px; color:var(--ink-soft);">This is one of the published writing samples for
 <a href="devdocs-studio.html">DevDocs Studio</a> — API and developer documentation where every code
@@ -155,7 +173,7 @@ example is run against the real package before it is published. Other samples: <
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, jsonwebtoken, or their maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with zod or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>
