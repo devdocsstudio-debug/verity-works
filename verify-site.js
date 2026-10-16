@@ -63,6 +63,47 @@ if (fs.existsSync(sitemapPath)) {
   }
 }
 
+// 4b. Each canonical points at ITS OWN page (added 2026-10-16 during a full technical SEO audit).
+// Check 3 only proves the string rel="canonical" appears somewhere. That passes happily when a
+// canonical is copy-pasted between pages -- the single highest-impact silent SEO defect available
+// to a static site, because Google then treats four service pages as duplicates of the homepage
+// and drops them from the index. Presence was already checked; correctness was not.
+//
+// BASE is read from sitemap.xml rather than hardcoded, so set-live-url.sh stays the one place the
+// production URL is configured and this check cannot drift from it.
+if (fs.existsSync(sitemapPath)) {
+  const homeLoc = [...fs.readFileSync(sitemapPath, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((m) => m[1]).find((l) => l.endsWith("/"));
+  if (!homeLoc) {
+    fail("sitemap.xml has no root <loc> ending in / -- cannot determine the canonical base URL");
+  } else {
+    for (const page of PAGES) {
+      const fp = path.join(DIR, page);
+      if (!fs.existsSync(fp)) continue;
+      const found = (fs.readFileSync(fp, "utf8").match(/<link[^>]+rel="canonical"[^>]+href="([^"]+)"/) || [])[1];
+      const expected = page === "index.html" ? homeLoc : homeLoc + page;
+      if (found === expected) ok(`${page}: canonical is self-referential`);
+      else fail(`${page}: canonical is "${found}" but should be "${expected}" -- a wrong canonical de-indexes this page`);
+    }
+  }
+}
+
+// 4c. Exactly one h1, and every image has alt text. Both are cheap, both are real: multiple or
+// missing h1s muddy the page's topic, and a missing alt is an accessibility failure that no
+// amount of meta-tag correctness compensates for. 404.html is included -- it is a real page a
+// person can land on, even though it is noindex and out of the sitemap by design.
+for (const page of [...PAGES, "404.html"]) {
+  const fp = path.join(DIR, page);
+  if (!fs.existsSync(fp)) continue;
+  const text = fs.readFileSync(fp, "utf8");
+  const h1s = (text.match(/<h1[\s>]/g) || []).length;
+  if (h1s === 1) ok(`${page}: exactly one h1`);
+  else fail(`${page}: ${h1s} h1 elements (want exactly 1)`);
+  const imgsWithoutAlt = (text.match(/<img\b[^>]*>/g) || []).filter((t) => !/\balt\s*=/.test(t));
+  if (imgsWithoutAlt.length === 0) ok(`${page}: every img has alt text`);
+  else fail(`${page}: ${imgsWithoutAlt.length} img without alt (${imgsWithoutAlt[0].slice(0, 60)})`);
+}
+
 // 5. No accidentally-committed secret-shaped strings (a cheap, real safety net -- not a
 // substitute for not committing secrets in the first place, but catches an honest mistake).
 const SECRET_PATTERNS = [/client_secret["\s:=]+["'][A-Za-z0-9_\-]{10,}/i, /-----BEGIN (RSA |EC )?PRIVATE KEY-----/, /AKIA[0-9A-Z]{16}/];
