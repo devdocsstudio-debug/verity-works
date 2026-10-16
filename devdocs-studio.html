@@ -66,6 +66,7 @@
   db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, toId);
 });</pre>
     <p class="gotcha"><b>The gotcha most guides miss:</b> the transaction only rolls back on a thrown JS error — an UPDATE matching zero rows doesn't throw.</p>
+    <p style="margin:10px 0 0; font-size:13.5px;"><a href="sample-better-sqlite3.html">Read the full guide — five common patterns →</a></p>
   </div>
   <div class="card" style="margin-bottom:14px;">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">pdf-lib — Quick Reference</p>
@@ -73,6 +74,7 @@
 const [copiedPage] = await target.copyPages(sourceDoc, [0]);
 target.addPage(copiedPage);</pre>
     <p class="gotcha"><b>The gotcha most guides miss:</b> <code>copyPages</code> is called on the destination document, with the source as an argument.</p>
+    <p style="margin:10px 0 0; font-size:13.5px;"><a href="sample-pdf-lib.html">Read the full quick reference — five core operations →</a></p>
   </div>
   <div class="card">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">jsonwebtoken — Algorithm-Confusion Check</p>

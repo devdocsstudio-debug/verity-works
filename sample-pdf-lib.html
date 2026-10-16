@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<title>pdf-lib Quick Reference — Writing Sample — Verity Works</title>
+<meta name="description" content="A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.">
+<link rel="canonical" href="https://devdocsstudio-debug.github.io/verity-works/sample-pdf-lib.html">
+<meta property="og:title" content="pdf-lib Quick Reference (writing sample)">
+<meta property="og:description" content="A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pdf-lib Quick Reference (writing sample)">
+<meta name="twitter:description" content="A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 6px; background: #12161c; color: #e6edf3; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
+  .sample :not(pre) > code { background: rgba(127,127,127,.14); padding: .12em .35em; border-radius: 4px; }
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--rule, #d7d2c7); color: var(--ink-soft); font-size: 14.5px; }
+  .sample h2 { margin-top: 32px; }
+  .sample p { max-width: 68ch; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="mark" href="index.html">Verity Works</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
+      <a href="content-repurposing.html">Content Repurposing</a>
+      <a href="devdocs-studio.html">DevDocs Studio</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap sample">
+<h1>pdf-lib: Quick Reference for Creating and Modifying PDFs in Node.js</h1>
+<p><em>A task-oriented reference for the five operations every pdf-lib project eventually needs — not a method-by-method dump of the API surface.</em></p>
+<blockquote><strong>Sample scope note:</strong> this is a portfolio writing sample for the freelance API/developer-documentation candidate, not an official or commissioned document. It documents the real, public <code>pdf-lib</code> npm package by reading its source and type definitions directly. Every code example below was executed against the actual installed library before publication.</blockquote>
+<hr>
+<h2>Create a new PDF and draw text on it</h2>
+<pre><code class="language-js">const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+
+const doc = await PDFDocument.create();
+const font = await doc.embedFont(StandardFonts.Helvetica);
+const page = doc.addPage([400, 200]); // [width, height] in points; omit the array for a default US-Letter page
+
+page.drawText('Hello, pdf-lib', { x: 50, y: 120, size: 24, font, color: rgb(0, 0, 0) });
+
+const bytes = await doc.save(); // Uint8Array — write it to disk, a response body, or an S3 upload</code></pre>
+<p>Two things that trip people up on the first pass: <code>drawText</code>'s <code>y</code> is measured <strong>from the bottom of the page</strong>, not the top (so <code>y: 120</code> on a 200pt-tall page is near the middle, not near the bottom). And a font must be embedded and passed explicitly to every <code>drawText</code> call — there is no page-wide default font to fall back on.</p>
+<h2>Load an existing PDF and add a page</h2>
+<pre><code class="language-js">const existingBytes = fs.readFileSync('input.pdf');
+const doc = await PDFDocument.load(existingBytes);
+
+const page = doc.addPage(); // appended after the existing pages
+page.drawText('Appended page', { x: 50, y: page.getHeight() - 50, size: 18 });
+
+fs.writeFileSync('output.pdf', await doc.save());</code></pre>
+<p><code>PDFDocument.load()</code> parses the whole file into an in-memory document object — there's no streaming/partial-load mode. For very large PDFs (hundreds of MB) this matters for memory use; for typical generated reports and forms it's a non-issue.</p>
+<h2>Merge pages from one PDF into another</h2>
+<pre><code class="language-js">const target = await PDFDocument.create();
+const [copiedPage] = await target.copyPages(sourceDoc, [0]); // indices of pages to copy, 0-based
+target.addPage(copiedPage);</code></pre>
+<p><code>copyPages</code> is called <strong>on the destination document</strong>, with the source document and an array of page indices as arguments — the direction of the call is the opposite of what most people guess on the first try (<code>target.copyPages(source, ...)</code>, not <code>source.copyPages(target, ...)</code>). The returned pages aren't attached to the target automatically; each one still needs an explicit <code>addPage()</code>.</p>
+<h2>Getting and checking page count/size</h2>
+<pre><code class="language-js">doc.getPageCount();         // number of pages currently in the document
+doc.getPage(0).getSize();   // { width, height } in points for a specific page</code></pre>
+<p>Useful for defensive code before an append/merge operation (e.g. "has this PDF already got a cover page?") without re-parsing the file a second time.</p>
+<h2>Fill in a form field (when the source PDF has one)</h2>
+<pre><code class="language-js">const form = doc.getForm();
+form.getTextField('applicant_name').setText('Ada Lovelace');
+form.flatten(); // optional: bakes the filled values into the page content and removes the editable field</code></pre>
+<p><code>getForm()</code> throws if the PDF has no AcroForm at all — worth a try/catch (or an explicit check) rather than assuming every PDF a pipeline receives is fillable.</p>
+<hr>
+<h3>Why this is a reference, not a tutorial</h3>
+<p>Each section above answers one question a working developer actually has mid-task ("how do I add a page to a PDF I already have") rather than walking through pdf-lib feature-by-feature from the top. That's the shape most API documentation gaps take in practice: the official docs cover what exists, but not which combination of calls gets a specific real job done.</p>
+<hr>
+<p style="font-size:14px; color:var(--ink-soft);">This is one of the published writing samples for
+<a href="devdocs-studio.html">DevDocs Studio</a> — API and developer documentation where every code
+example is run against the real package before it is published.
+<a href="sample-better-sqlite3.html">better-sqlite3 patterns</a> ·
+<a href="sample-pdf-lib.html">pdf-lib quick reference</a></p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, jsonwebtoken, or their maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
+</footer>
+<script src="assets/ref-tracking.js"></script>
+<script src="assets/nav-toggle.js"></script>
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<title>better-sqlite3 Common Patterns — Writing Sample — Verity Works</title>
+<meta name="description" content="A writing sample: the five better-sqlite3 patterns that come up in almost every real project, with examples run against the real package.">
+<link rel="canonical" href="https://devdocsstudio-debug.github.io/verity-works/sample-better-sqlite3.html">
+<meta property="og:title" content="better-sqlite3 Common Patterns (writing sample)">
+<meta property="og:description" content="A writing sample: the five better-sqlite3 patterns that come up in almost every real project, with examples run against the real package.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="better-sqlite3 Common Patterns (writing sample)">
+<meta name="twitter:description" content="A writing sample: the five better-sqlite3 patterns that come up in almost every real project, with examples run against the real package.">
+<meta name="robots" content="index,follow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 6px; background: #12161c; color: #e6edf3; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
+  .sample :not(pre) > code { background: rgba(127,127,127,.14); padding: .12em .35em; border-radius: 4px; }
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--rule, #d7d2c7); color: var(--ink-soft); font-size: 14.5px; }
+  .sample h2 { margin-top: 32px; }
+  .sample p { max-width: 68ch; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="mark" href="index.html">Verity Works</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
+      <a href="content-repurposing.html">Content Repurposing</a>
+      <a href="devdocs-studio.html">DevDocs Studio</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap sample">
+<h1>better-sqlite3: Common Patterns Guide</h1>
+<p><em>A practical companion to the official API reference — the five patterns that come up in almost every real project, with runnable examples.</em></p>
+<blockquote><strong>Sample scope note:</strong> this is a portfolio writing sample for the freelance API/developer-documentation candidate, not an official or commissioned document. It documents the real, public <code>better-sqlite3</code> npm package (v13.0.3) by reading its source directly. Every code example on this page was executed against the actual installed library before publication — none of the described behavior is assumed or guessed.</blockquote>
+<hr>
+<h2>1. Open a database and set the journal mode</h2>
+<pre><code class="language-js">const Database = require('better-sqlite3');
+const db = new Database('app.db');
+
+db.pragma('journal_mode = WAL'); // write-ahead logging: better concurrent read/write behavior than the default</code></pre>
+<p><code>db.pragma()</code> both executes a SQLite <code>PRAGMA</code> and returns its result as an array of rows — here, <code>[{ journal_mode: 'wal' }]</code>. Most projects should set WAL mode once, right after opening, unless the database lives on a filesystem that doesn't support it well (some network drives).</p>
+<h2>2. Prepared statements: <code>run</code>, <code>get</code>, <code>all</code></h2>
+<p>better-sqlite3 is synchronous — no callbacks, no promises, no <code>await</code>. A prepared statement is reused across calls instead of re-parsed each time:</p>
+<pre><code class="language-js">const insert = db.prepare('INSERT INTO users (name, balance) VALUES (?, ?)');
+const info = insert.run('Ada', 100);
+// info -&gt; { changes: 1, lastInsertRowid: 1 }
+
+const getOne = db.prepare('SELECT * FROM users WHERE id = ?');
+getOne.get(1);
+// -&gt; { id: 1, name: 'Ada', balance: 100 }  (undefined if no row matches)
+
+const all = db.prepare('SELECT * FROM users ORDER BY id').all();
+// -&gt; [ { id: 1, name: 'Ada', balance: 100 }, { id: 2, name: 'Grace', balance: 50 } ]</code></pre>
+<p>Use <code>.run()</code> for statements that don't return rows (INSERT/UPDATE/DELETE), <code>.get()</code> for exactly one row or <code>undefined</code>, and <code>.all()</code> to materialize every matching row into memory at once.</p>
+<p><strong>When a result set could be large</strong>, prefer <code>.iterate()</code> over <code>.all()</code> — it yields rows one at a time instead of allocating the whole array:</p>
+<pre><code class="language-js">for (const row of db.prepare('SELECT * FROM users').iterate()) {
+  // row is produced lazily
+}</code></pre>
+<h2>3. Transactions are plain functions</h2>
+<p><code>db.transaction()</code> wraps a normal JS function; calling the wrapped function runs it inside <code>BEGIN</code>/<code>COMMIT</code>, with automatic <code>ROLLBACK</code> if it throws:</p>
+<pre><code class="language-js">const transfer = db.transaction((fromId, toId, amount) =&gt; {
+  db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(amount, fromId);
+  db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, toId);
+});
+
+transfer(1, 2, 25); // one atomic unit; throws roll back both statements together</code></pre>
+<p><strong>A frequent misreading of this API:</strong> the transaction only rolls back on a thrown JS error. An <code>UPDATE ... WHERE id = ?</code> that matches zero rows does <strong>not</strong> throw — it just reports <code>changes: 0</code> — so a transfer to a nonexistent account id still commits the debit half. If "the recipient must exist" is a real invariant, check for it (e.g. inspect <code>changes</code>, or verify the row first) and throw inside the transaction function yourself; the library won't infer that intent for you.</p>
+<h2>4. User-defined SQL functions</h2>
+<p>Custom logic can be registered and called directly from SQL:</p>
+<pre><code class="language-js">db.function('SHOUT', (text) =&gt; String(text).toUpperCase());
+
+db.prepare('SELECT SHOUT(name) AS shouted FROM users WHERE id = 1').get();
+// -&gt; { shouted: 'ADA' }</code></pre>
+<p>Useful for small, pure transforms (normalizing text, hashing, formatting) that are awkward to express in SQL but don't justify pulling rows into JS first.</p>
+<h2>5. Backing up a live database</h2>
+<pre><code class="language-js">await db.backup('app-backup.db');
+// the live database stays open and usable throughout; the backup is a consistent point-in-time copy</code></pre>
+<p><code>.backup()</code> returns a Promise and uses SQLite's own online backup API, so it's safe to run against a database that's still being written to — unlike just copying the <code>.db</code> file, which can capture a half-written page.</p>
+<hr>
+<h3>Why a guide like this, separate from the reference docs</h3>
+<p>The official README documents every method signature; it doesn't tell you that a transaction won't roll back on a logically-wrong but non-throwing update, or when to reach for <code>.iterate()</code> instead of <code>.all()</code>. That gap — between "what each function returns" and "what actually trips people up the first time they use it" — is the gap this kind of documentation is written to close.</p>
+<hr>
+<p style="font-size:14px; color:var(--ink-soft);">This is one of the published writing samples for
+<a href="devdocs-studio.html">DevDocs Studio</a> — API and developer documentation where every code
+example is run against the real package before it is published.
+<a href="sample-better-sqlite3.html">better-sqlite3 patterns</a> ·
+<a href="sample-pdf-lib.html">pdf-lib quick reference</a></p>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3, pdf-lib, jsonwebtoken, or their maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span></div>
+</footer>
+<script src="assets/ref-tracking.js"></script>
+<script src="assets/nav-toggle.js"></script>
+</body>
+</html>

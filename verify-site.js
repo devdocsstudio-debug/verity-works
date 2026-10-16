@@ -11,7 +11,13 @@ const fs = require("fs");
 const path = require("path");
 
 const DIR = __dirname;
-const PAGES = ["index.html", "lead-generation.html", "missed-call-audit.html", "content-repurposing.html", "devdocs-studio.html"];
+const PAGES = ["index.html", "lead-generation.html", "missed-call-audit.html", "content-repurposing.html", "devdocs-studio.html",
+  // Published writing samples (2026-10-16). These are real pages that must be indexable and
+  // linkable: every technical-writing agency and writer-program application asks for links to
+  // samples online, so they are load-bearing for acquisition, not decoration. Generated from their
+  // markdown sources by build-samples.js -- run `node build-samples.js --check` to confirm the
+  // committed pages still match.
+  "sample-better-sqlite3.html", "sample-pdf-lib.html"];
 const REQUIRED_META = ["meta charset", "name=\"viewport\"", "meta name=\"description\"", "rel=\"canonical\"", "og:title", "twitter:card", "name=\"robots\""];
 
 let failed = 0;
