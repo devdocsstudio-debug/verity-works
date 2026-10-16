@@ -37,8 +37,19 @@ const SAMPLES = [
     title: "pdf-lib Quick Reference — Writing Sample — Verity Works",
     description: "A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.",
     ogTitle: "pdf-lib Quick Reference (writing sample)",
+    label: "pdf-lib quick reference",
+  },
+  {
+    src: "API_DOCS_PORTFOLIO_SAMPLE_3.md",
+    out: "sample-zod-v4.html",
+    title: "Zod v4 Validation Behavior — Writing Sample — Verity Works",
+    description: "A writing sample: the five Zod v4 behaviors that surprise people — parse vs safeParse, unknown keys, coercion, optionality, and transform/refine ordering.",
+    ogTitle: "Zod v4 Validation Behavior (writing sample)",
+    label: "Zod v4 validation behavior",
   },
 ];
+// Cross-links are generated from SAMPLES, so adding a fourth sample needs no edit here.
+SAMPLES[0].label = SAMPLES[0].label || "better-sqlite3 patterns";
 
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
@@ -101,6 +112,10 @@ function mdToHtml(md) {
 
 function page(sample, bodyHtml) {
   const url = BASE + sample.out;
+  // Every sample links to the others, so each one is a route into the rest of the portfolio --
+  // which is what an application reviewer following a single link actually needs.
+  const others = SAMPLES.filter((s) => s.out !== sample.out)
+    .map((s) => `<a href="${s.out}">${s.label}</a>`).join(" · ");
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -148,9 +163,7 @@ ${bodyHtml}
 <hr>
 <p style="font-size:14px; color:var(--ink-soft);">This is one of the published writing samples for
 <a href="devdocs-studio.html">DevDocs Studio</a> — API and developer documentation where every code
-example is run against the real package before it is published.
-<a href="sample-better-sqlite3.html">better-sqlite3 patterns</a> ·
-<a href="sample-pdf-lib.html">pdf-lib quick reference</a></p>
+example is run against the real package before it is published. Other samples: ${others}</p>
 </main>
 
 <footer class="site-footer">

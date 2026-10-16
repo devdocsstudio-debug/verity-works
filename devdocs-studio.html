@@ -85,6 +85,12 @@ jwt.verify(forgedHS256Token, rsaPublicKey);
     <p class="gotcha"><b>Not a library vulnerability — an edge case worth knowing:</b> that default protection depends on the key still parsing as a real key. If its PEM BEGIN/END envelope markers are lost (confirmed by the maintainer: internal line breaks don't matter, but the envelope lines always must be present — <a href="https://github.com/auth0/node-jsonwebtoken/issues/669" target="_blank" rel="noopener">auth0/node-jsonwebtoken#669</a>), verification falls back to treating the value as a plain secret. That's not a quiet backdoor, though: a real user's own legitimate token fails the exact same way in that state, so it surfaces as a total login outage, not a hidden exploit. Pin <code>{ algorithms: ['RS256'] }</code> explicitly anyway — cheap, unconditional defense-in-depth either way.</p>
   </div>
 
+  <p style="font-size:13.5px; margin:14px 0 0;">Full published samples:
+    <a href="sample-better-sqlite3.html">better-sqlite3 patterns</a> ·
+    <a href="sample-pdf-lib.html">pdf-lib quick reference</a> ·
+    <a href="sample-zod-v4.html">Zod v4 validation behavior</a>
+    <span style="color:var(--ink-soft);">— independent samples documenting public packages; every example executed before publishing.</span></p>
+
   <div class="section-label">Order</div>
   <div class="tier-grid">
     <div class="card">

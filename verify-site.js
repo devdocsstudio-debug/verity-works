@@ -17,7 +17,7 @@ const PAGES = ["index.html", "lead-generation.html", "missed-call-audit.html", "
   // samples online, so they are load-bearing for acquisition, not decoration. Generated from their
   // markdown sources by build-samples.js -- run `node build-samples.js --check` to confirm the
   // committed pages still match.
-  "sample-better-sqlite3.html", "sample-pdf-lib.html"];
+  "sample-better-sqlite3.html", "sample-pdf-lib.html", "sample-zod-v4.html"];
 const REQUIRED_META = ["meta charset", "name=\"viewport\"", "meta name=\"description\"", "rel=\"canonical\"", "og:title", "twitter:card", "name=\"robots\""];
 
 let failed = 0;
