@@ -120,6 +120,19 @@ function mdToHtml(md) {
     }
     if (/^---+\s*$/.test(line)) { out.push("<hr>"); i++; continue; }
     if (/^\s*$/.test(line)) { i++; continue; }
+    // HTML comments pass through verbatim rather than becoming escaped visible text. This matters
+    // for anchored deliverables (see ventures/devdocs-studio/build-guide.js): those guides carry a
+    // `<!-- verified: script.js#anchor -->` line above each code block recording which executed
+    // script the snippet came from. Verified 2026-10-17 by running mdToHtml directly -- without
+    // this branch that line rendered as a visible paragraph reading "<!-- verified: ... -->" above
+    // every code block. Passing it through keeps it invisible on the page while leaving the
+    // provenance readable in the page source, which is evidence for the claim the service sells.
+    if (/^\s*<!--/.test(line)) {
+      const body = [];
+      while (i < lines.length) { body.push(lines[i]); if (/-->/.test(lines[i++])) break; }
+      out.push(body.join("\n"));
+      continue;
+    }
     if (/^\s*([-*+]|\d+\.)\s/.test(line)) {
       throw new Error(`markdown line ${i + 1} is a list item, which this generator does not ` +
         `support and would render as a run-on paragraph: ${JSON.stringify(line)}`);
@@ -131,7 +144,7 @@ function mdToHtml(md) {
     const para = [];
     // The list/table patterns are repeated here, not just guarded above: without them a list
     // following a prose line is absorbed into that paragraph and never reaches the throw.
-    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^```/.test(lines[i]) && !/^#{1,6}\s/.test(lines[i]) && !/^>/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) && !/^\s*([-*+]|\d+\.)\s/.test(lines[i]) && !/^\s*\|/.test(lines[i])) {
+    while (i < lines.length && !/^\s*$/.test(lines[i]) && !/^```/.test(lines[i]) && !/^#{1,6}\s/.test(lines[i]) && !/^>/.test(lines[i]) && !/^---+\s*$/.test(lines[i]) && !/^\s*([-*+]|\d+\.)\s/.test(lines[i]) && !/^\s*\|/.test(lines[i]) && !/^\s*<!--/.test(lines[i])) {
       para.push(lines[i++]);
     }
     out.push(`<p>${inline(para.join(" "))}</p>`);
