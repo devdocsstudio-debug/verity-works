@@ -14,7 +14,7 @@
 <meta name="twitter:title" content="Missed Call Audit">
 <meta name="twitter:description" content="A real audit of what your public reviews already say about unanswered calls.">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <script type="application/ld+json">
 {
@@ -87,8 +87,14 @@
 
   <div class="section-label">Request an audit</div>
   <div class="card" style="text-align:center;">
-    <p>Tell us your business name and location. (Audit only — automation isn't orderable yet.)</p>
-    <a class="btn" href="mailto:devdocsstudio@gmail.com?subject=Missed%20call%20audit%20request&body=Business%20name%3A%0ALocation%3A">Request your audit</a>
+    <p style="margin-top:0;">Two lines is enough to quote it. Copy this, fill it in, and send it to <a href="mailto:devdocsstudio@gmail.com?subject=Missed%20call%20audit%20request">devdocsstudio@gmail.com</a>. (Audit only — automation isn't orderable yet.)</p>
+    <pre class="order-brief" id="order-brief">Business name:
+Location (city and state):
+Where customers usually find you (Google, Yelp, Facebook, other):</pre>
+    <div class="brief-actions">
+      <a class="btn" href="mailto:devdocsstudio@gmail.com?subject=Missed%20call%20audit%20request&body=Business%20name%3A%0ALocation%20%28city%20and%20state%29%3A%0AWhere%20customers%20usually%20find%20you%20%28Google%2C%20Yelp%2C%20Facebook%2C%20other%29%3A%0A">Open it in your email app</a>
+      <button type="button" class="btn-quiet" data-copy-brief="#order-brief" hidden>Copy the brief</button>
+    </div>
     <p style="font-size:12.5px; color:var(--ink-soft); margin-top:12px;">What happens next: we confirm the $35 price covers your request, then send a secure PayPal invoice — your audit starts once that's paid. Sending this email isn't a completed purchase.</p>
     <p style="font-size:12.5px; margin:8px 0 0;"><a href="terms.html#missed-call-audit">Scope, delivery and the refund guarantee for this service &rarr;</a></p>
   </div>
@@ -99,6 +105,7 @@
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>
+<script src="assets/order-brief.js"></script>
 <!-- GoatCounter disabled until a real account exists -- run set-analytics-code.sh to enable:
 <script data-goatcounter="https://GOATCOUNTER_CODE_PLACEHOLDER.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 -->

@@ -149,6 +149,40 @@ for (const page of [...PAGES, "404.html"]) {
     `headings and the brand mark will silently fall back to Georgia`);
 }
 
+// 4e. THE OTHER DIRECTION. 4d catches a page requesting a font nothing uses. It cannot catch the
+// reverse -- a page USING a class whose stylesheet rule names a webfont the page never requested
+// -- and the reverse is the one that actually degrades the rendering. Measured 2026-10-17:
+// index.html has been using .card-tag, which base.css sets in IBM Plex Mono, while requesting only
+// Fraunces and Inter, so every card tag on the home page rendered in whatever monospace the
+// visitor's OS defaults to. Nothing failed, and 4d passed, because the font that was missing was
+// never asked for in the first place.
+//
+// Deliberately narrow: single-class selectors in base.css only. That is what this stylesheet
+// actually uses for font-bearing rules, and a narrow check that is right beats a general one that
+// guesses at selector matching.
+const CLASS_FONT_RULES = [...cssText.matchAll(/\.([a-z0-9-]+)\s*(?:,[^{]*)?\{([^}]*)\}/gi)]
+  .flatMap(([, cls, body]) => {
+    const fam = (body.match(/font-family:\s*['"]([^'"]+)['"]/) || [])[1];
+    return fam ? [{ cls, fam }] : [];
+  });
+for (const page of [...PAGES, "404.html"]) {
+  const fp = path.join(DIR, page);
+  if (!fs.existsSync(fp)) continue;
+  const text = fs.readFileSync(fp, "utf8");
+  const link = (text.match(/fonts\.googleapis\.com\/css2\?([^"']+)/) || [])[1] || "";
+  const requested = [...link.matchAll(/family=([^:&]+)/g)].map((m) => decodeURIComponent(m[1]).replace(/\+/g, " "));
+  for (const { cls, fam } of CLASS_FONT_RULES) {
+    // Generic families (ui-monospace, Georgia, -apple-system) are not webfonts and need no request.
+    if (!/^(Fraunces|Inter|IBM Plex Mono|JetBrains Mono|Source Serif)/i.test(fam)) continue;
+    // `\\b` and not `\b`: inside a template literal `\b` is the backspace character, which matches
+    // nothing and silently turns this whole check into a no-op. It did exactly that on first run.
+    if (!new RegExp(`class="[^"]*\\b${cls}\\b`).test(text)) continue;
+    if (requested.includes(fam)) ok(`${page}: uses .${cls} and requests its font (${fam})`);
+    else fail(`${page}: uses .${cls}, which base.css sets in "${fam}", but never requests that ` +
+      `font -- it renders in a fallback face and nothing else reports it`);
+  }
+}
+
 // 5. No accidentally-committed secret-shaped strings (a cheap, real safety net -- not a
 // substitute for not committing secrets in the first place, but catches an honest mistake).
 const SECRET_PATTERNS = [/client_secret["\s:=]+["'][A-Za-z0-9_\-]{10,}/i, /-----BEGIN (RSA |EC )?PRIVATE KEY-----/, /AKIA[0-9A-Z]{16}/];

@@ -182,3 +182,26 @@ a.card:hover, a.card:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ---- Order brief (service pages) ----------------------------------------------------------
+   The questions a quote needs, as readable text rather than hidden inside a mailto: body that
+   only opens for visitors with a mail client registered. Monospace, because like every price and
+   date on this site it is something the reader is meant to copy exactly and check. */
+.order-brief {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13.5px; line-height: 1.75;
+  background: var(--surface-2); border: 1px solid var(--rule); border-left: 2px solid var(--accent);
+  border-radius: 2px; padding: 14px 16px; margin: 0 0 14px; text-align: left;
+  white-space: pre-wrap; overflow-wrap: break-word; color: var(--ink);
+  /* No hanging indent for the wrapped lines: text-indent applies to the first line of the BLOCK,
+     not to each line inside a pre, so a negative value outdents line one and makes it read as a
+     heading. Checked in the browser at 375px; the trailing colon on each question already carries
+     the structure. */
+}
+.brief-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: center; }
+/* The second action is deliberately quieter than .btn: one primary path, one convenience. */
+.btn-quiet {
+  background: transparent; color: var(--accent-ink); border: 1px solid var(--rule);
+  border-radius: 2px; padding: 11px 18px; font: inherit; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: border-color 160ms ease, color 160ms ease;
+}
+.btn-quiet:hover { border-color: var(--accent); color: var(--accent-bright); }
