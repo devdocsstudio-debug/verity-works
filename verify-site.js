@@ -12,6 +12,9 @@ const path = require("path");
 
 const DIR = __dirname;
 const PAGES = ["index.html", "lead-generation.html", "missed-call-audit.html", "content-repurposing.html", "devdocs-studio.html",
+  // Service terms (2026-10-17). A buyer deciding on a $250 order reads this before paying, and
+  // every page footer links to it, so it is a real page under the same meta/canonical/a11y rules.
+  "terms.html",
   // Published writing samples (2026-10-16). These are real pages that must be indexable and
   // linkable: every technical-writing agency and writer-program application asks for links to
   // samples online, so they are load-bearing for acquisition, not decoration. Generated from their
