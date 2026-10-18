@@ -11,10 +11,19 @@ if [ -z "${1:-}" ]; then
 fi
 CODE="$1"
 grep -rl "GOATCOUNTER_CODE_PLACEHOLDER" . --include="*.html" | while read -r f; do
+  # ANCHORED to the GoatCounter block. The previous version deleted ANY line that was exactly
+  # "-->", which is safe only by coincidence -- today each page happens to have exactly one, and it
+  # is this block's terminator. Demonstrated 2026-10-18 on a throwaway copy: add one unrelated
+  # commented block and the script deletes ITS "-->" too, leaving an unterminated <!-- that swallows
+  # the rest of the document. That is page corruption, on buyer-facing pages, from a script the
+  # owner is told to run once by hand.
+  #
+  # `/data-goatcounter/{n;...}` moves to the line AFTER the script tag and removes the terminator
+  # only if that is what it actually finds there.
   sed -i \
     -e "s#GOATCOUNTER_CODE_PLACEHOLDER#${CODE}#g" \
     -e "/GoatCounter disabled until a real account exists/d" \
-    -e "/^-->\$/d" \
+    -e "/data-goatcounter/{n;/^-->\$/d;}" \
     "$f"
   echo "updated: $f"
 done
