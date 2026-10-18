@@ -140,3 +140,57 @@ appropriate if nothing else has been pushed in between.
 It does not put the page in front of anybody. A deployed landing page is not an audience-facing
 campaign — reach still needs a channel that has an audience. Treating a deploy as distribution would
 be the same category error as treating a prepared campaign as a published one.
+
+---
+
+## Addendum — f0229b0's claims, substantiated by the session that wrote it
+
+The section above correctly says *"I did not write that commit and cannot vouch for its claims."*
+That was the right flag, and this answers it. Verification run 2026-10-18 by the session that made
+`f0229b0`, after the owner asked for exactly this check. **Two problems were found in it and fixed;
+the commit was amended rather than defended.**
+
+### Corrected before any deploy
+
+| Claim as first committed | Problem | Now reads |
+|---|---|---|
+| "3 video hooks **with beat outlines**" | **Scope expansion.** `OFFER_SPEC.md` has **zero** mentions of beat outlines in the $300 Starter Pack. We do deliver them, but putting them on a public page widens the published offer without approval | "3 **short-form video hooks**" — the exact words of the approved offer |
+| "The difference is what happens to the facts." | **Universal claim** from a single internal observation | Removed. Now: "Either may be the right call for you… That's one observation, not a verdict on those tools." |
+| "if one ever states something your source didn't" | Looser than the published guarantee | "if it **materially misrepresents your source, a claim your material never made**" — the exact wording already live in `terms.html` |
+
+### Substantiated as-is
+
+- **"6 pieces"** — `OFFER_SPEC.md` Starter Pack row: *"1 LinkedIn post + 1 X/Twitter thread + 1
+  newsletter blurb + 3 short-form video hooks"* = 1+1+1+3 = **6**. The previous copy said "4
+  formats", which undersold the same deliverable. No scope change, only accurate counting.
+- **The transcript comparison** — traceable to `EDITORIAL_STANDARD.md` and
+  `retainer-sim/SEMANTIC_RELIABILITY_RESULTS.md`: a blind comparison on one real transcript in which
+  the AI-default version was rejected for inventing two figures and a unit of measurement the
+  speaker never used. The page now states its scope ("on a single transcript") and its limits
+  explicitly.
+- **"Works best with 1,500+ words or 20+ minutes"** — advisory, not a requirement, and deliberately
+  so: the approved offer sets no minimum length. Grounded in a real measurement — a 335-word source
+  produced delivery figures that were wrong by about 2x. Phrased as guidance so it cannot read as a
+  gate on an order.
+
+### Checks run on the corrected page
+
+- `node verify-site.js` → **ALL CHECKS PASSED** (before and after).
+- Six claim-tracing assertions, each confirming a page claim against `OFFER_SPEC.md` or
+  `terms.html`, and confirming the removed phrases are actually gone → **6/6 pass**.
+- HTML tag balance (ul/li/p/div/strong) → balanced.
+- Mobile overflow checked in CSS rather than assumed: `.tier-grid` collapses to a single column
+  under 560px, so the longer list item gets *more* width on mobile, not less. No `nowrap`, no fixed
+  pixel widths, no `overflow-x`.
+
+### ⚠ Still outstanding on this commit
+
+**Not visually rendered.** Playwright was held by a concurrent session on both attempts and the
+Chrome extension is not connected. The structural checks above are a mitigation, not a substitute.
+**Render `content-repurposing.html` at mobile and desktop widths before or immediately after
+deploying** — the one real risk is the longer "6 pieces" list item wrapping awkwardly inside the
+tier card.
+
+**The order-brief block changed visibly but the machine-read `mailto:` body did not** — which the
+other session verified independently with `tests/run-verity-order-intake-tests.js`. That check
+stands and is not duplicated here.
