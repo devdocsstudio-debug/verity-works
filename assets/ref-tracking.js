@@ -10,7 +10,12 @@ function appendRefToMailto(href, ref) {
   for (var i = 0; i < parts.length; i++) {
     if (parts[i].indexOf("body=") === 0) { bodyIndex = i; break; }
   }
-  var note = "Source%3A+" + encodeURIComponent(ref);
+  // %20, not "+". A mailto body is percent-encoded (RFC 6068), not form-encoded, so a literal "+"
+  // stays a plus sign in the email the visitor sends: measured in a real browser on the deployed
+  // page, 2026-10-18, the body read "Source:+camp-3e40de03928dfc33". The engine's intake pattern
+  // tolerates both now, because links already published cannot be edited, but new links should
+  // carry the separator that actually means a space.
+  var note = "Source%3A%20" + encodeURIComponent(ref);
   if (bodyIndex === -1) {
     parts.push("body=" + note);
   } else {
