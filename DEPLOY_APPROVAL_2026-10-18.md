@@ -1,7 +1,8 @@
 # Website deployment — approval request, 2026-10-18
 
-**Nothing has been pushed.** Two commits exist locally and are not on the remote. Pushing this
-repository publishes to GitHub Pages, which is a publication and needs the owner's authorization.
+**Nothing has been pushed.** Three commits exist locally and are not on the remote — two mine, one
+from a concurrent session (see the warning below). Pushing this repository publishes to GitHub Pages,
+which is a publication and needs the owner's authorization.
 
 ## Destination
 
