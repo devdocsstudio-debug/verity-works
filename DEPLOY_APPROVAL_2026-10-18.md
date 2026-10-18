@@ -206,3 +206,55 @@ tier card.
 **The order-brief block changed visibly but the machine-read `mailto:` body did not** — which the
 other session verified independently with `tests/run-verity-order-intake-tests.js`. That check
 stands and is not duplicated here.
+
+---
+
+## Visual verification — COMPLETE (2026-10-18)
+
+The outstanding item above is now closed. The MCP browser stayed held by a concurrent session all
+cycle, so this was run against **our own Playwright instance with real device emulation**, which
+never touches that browser.
+
+**Result: the release queue is visually clean at mobile (390×844, DPR 2, touch) and desktop
+(1280×900).**
+
+| Page | Mobile | Desktop |
+|---|---|---|
+| `content-repurposing.html` | `scrollWidth=390`, **0** elements past viewport, no horizontal scroll | clean |
+| `index.html` | clean | clean |
+| `terms.html` | clean | clean |
+| `lead-generation.html` | **see note** | clean |
+
+**`content-repurposing.html` order card, inspected directly:** the new "1 source → **6 pieces**:
+LinkedIn post, X thread, newsletter blurb, 3 short-form video hooks" wraps cleanly over three lines
+inside the card, the tier grid collapses to a single column as intended, and nothing is clipped.
+The `.honest` paragraph and hero wrap correctly.
+
+**`lead-generation.html` — investigated, NOT a defect.** The detector counted 33 elements past the
+viewport on mobile. The cause is the 705px data-sample table, and it sits inside
+`div.exhibit-scroll` with `overflow-x: auto` (clientWidth 304, scrollWidth 705) — a deliberate
+horizontal scroll container, which is the correct pattern for a wide table on a phone. The document
+itself does not scroll horizontally (`scrollWidth === innerWidth === 390`). **No change
+recommended.**
+
+**Smallest rendered body font:** 10.5px on `index.html`, 11px on the two service pages, 12.5px on
+`terms.html`. Legible, though 10.5px is at the low end — worth a future look, **not** a release
+blocker and deliberately not changed here.
+
+### A false alarm worth recording, because it nearly became a reported defect
+
+A first pass used raw headless Chrome with `--window-size=390,1400` and showed text clipped at the
+right edge on mobile. **That was an artifact**: headless Chrome at a narrow window does not apply
+mobile viewport emulation, so it renders the desktop layout into a 390px frame. Proper emulation
+shows zero overflow. This is the same failure shape as the YouTube "zero Shorts" reading retracted
+earlier the same day — **a tool returning something that looks like evidence when it is really
+reporting its own rendering.** Measure, then report.
+
+### Release recommendation
+
+**All six queued commits are, from this session's side, ready to publish.** Scope is four files
+(`content-repurposing.html`, `lead-generation.html`, `assets/ref-tracking.js`, `verify-site.js`)
+plus this approval document. `verify-site.js` passes, claims are traced to `OFFER_SPEC.md` and
+`terms.html`, and both sizes render correctly.
+
+**Still requires explicit owner approval to push. Nothing has been deployed.**
