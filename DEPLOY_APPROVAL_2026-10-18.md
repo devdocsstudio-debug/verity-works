@@ -258,3 +258,72 @@ plus this approval document. `verify-site.js` passes, claims are traced to `OFFE
 `terms.html`, and both sizes render correctly.
 
 **Still requires explicit owner approval to push. Nothing has been deployed.**
+
+---
+
+## Final release verification — 2026-10-18, for approval
+
+**Do not freeze the commit count here; it has drifted four times in one day.** Get the live range:
+
+```
+cd ventures/website && git log origin/main..HEAD --oneline
+```
+
+At the time of writing: **8 commits**, combined scope **5 files**, all `.html` / `.js` / `.md`.
+No binaries, no config, no credentials, no workflow files.
+
+| File | Change | Owner |
+|---|---|---|
+| `content-repurposing.html` | +5/−3 — 6-piece scope, scoped AI comparison, published guarantee wording, advisory source length | **this session** |
+| `lead-generation.html` | 2 claims corrected against the real dataset | concurrent session |
+| `assets/ref-tracking.js` | `%20` mailto encoding fix | concurrent session |
+| `verify-site.js` | +57 — new pre-deploy check, not served to visitors | concurrent session |
+| `DEPLOY_APPROVAL_2026-10-18.md` | this document | both |
+
+### Claims verified against the approved offer and live terms — 7/7
+
+6-piece scope matches `OFFER_SPEC.md` exactly · no beat-outline scope expansion · guarantee wording
+identical to live `terms.html` · AI comparison scoped as one observation, not a universal claim ·
+**$300** consistent across `OFFER_SPEC`, the visible page and the schema.org `Offer` · 3 business
+days · 1 revision round.
+
+**Capability confirmed, not just claimed:** five simulated sets each deliver exactly those four
+format blocks containing six pieces, at a measured ~80 minutes per set including mandatory
+independent editorial review. The page promises three business days. We can hold it.
+
+*(A scripted price check initially reported FAIL. That was shell-escaping in the check itself, not a
+claim mismatch — confirmed directly against all three sources. Reporting the check's failure as a
+page defect would have been the fourth false positive of the day; the other three were the YouTube
+"zero Shorts" reading, a headless-Chrome overflow artifact, and the lead-generation table.)*
+
+### ⚠ One release-scope finding the owner should decide on
+
+**This document will be published.** `README.md` is already served from this repo, so GitHub Pages
+serves `.md` files — meaning `DEPLOY_APPROVAL_2026-10-18.md` becomes publicly fetchable at
+`devdocsstudio-debug.github.io/verity-works/DEPLOY_APPROVAL_2026-10-18.md`.
+
+**It contains nothing sensitive** — checked for postal address, credentials, tokens, revenue figures
+and contact addresses; none present. But it is internal release commentary, including two sessions
+reviewing each other's commits, sitting on a customer-facing marketing site.
+
+**Options, owner's call:**
+1. **Publish as-is.** Harmless, and arguably a transparency asset.
+2. **Move it to the `commercial-discovery` repo** before pushing, so the website repo carries only
+   served assets. Cleanest, but it is partly a concurrent session's file — **coordinate, do not
+   unilaterally move it.**
+3. Exclude it via Jekyll `_config.yml`. Adds config for one file; least attractive.
+
+**Recommendation: option 2** for future release docs, option 1 for this one if moving it would
+disturb a concurrent session mid-work.
+
+### Deployment action, on approval
+
+```
+cd ventures/website
+git log origin/main..HEAD --oneline     # confirm the range first
+git push origin main                    # normal fast-forward; never force-push
+```
+
+Then re-verify live, per the checks earlier in this document.
+
+**Nothing has been pushed. This remains an approval request.**
