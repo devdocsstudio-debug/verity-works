@@ -195,5 +195,62 @@ for (const page of [...PAGES, "404.html"]) {
   else ok(`${page}: no secret-shaped strings found`);
 }
 
+// 6. THE PUBLISHED SAMPLE MUST MATCH WHAT WE WOULD ACTUALLY SHIP (added 2026-10-18).
+//
+// lead-generation.html publishes a row count and five real rows under the heading "Real output,
+// unredacted source". That is the page's single strongest proof element, and until now nothing
+// compared it to the data. It had drifted: the page said 277 rows from a 2026-10-08 capture while
+// the deliverable we would actually produce was 860 rows from 2026-10-17 -- and ONE of those 277
+// was "TWF Colorado LLC, Dissolved October 5, 2026", a company the state records as dissolved.
+//
+// This is the recurring defect in this project stated plainly: a public claim and the real artifact
+// drift apart because nothing mechanical compares them. So this compares them.
+//
+// Cross-repo and optional on purpose: the data lives in the maintenance-engine checkout. When that
+// is not present this reports SKIP rather than failing, because a missing sibling repo is not a
+// reason to block a deploy -- but when it IS present, a mismatch is.
+(function checkPublishedSampleAgainstData() {
+  const ENGINE = path.join(DIR, "..", "..", "..", "..", ".claude", "maintenance-engine");
+  let exporter = null;
+  try { exporter = require(path.join(ENGINE, "bin", "export-filing-data-csv.js")); } catch { /* sibling repo absent */ }
+  if (!exporter) { console.log("  SKIP: lead-generation.html sample not cross-checked (maintenance-engine checkout not found)"); return; }
+
+  const leadsDir = path.join(ENGINE, "state", "filing-leads");
+  let newest = null;
+  try {
+    newest = fs.readdirSync(leadsDir)
+      .filter((f) => /^colorado-filing-segmented-.*\.json$/.test(f))
+      .map((f) => ({ f, m: fs.statSync(path.join(leadsDir, f)).mtimeMs }))
+      .sort((a, b) => b.m - a.m)[0];
+  } catch { /* no data dir */ }
+  if (!newest) { console.log("  SKIP: lead-generation.html sample not cross-checked (no segmented source found)"); return; }
+
+  const entries = JSON.parse(fs.readFileSync(path.join(leadsDir, newest.f), "utf8")).entries;
+  const rows = exporter.filterRows(entries, { city: "Denver" });
+  const csv = exporter.toCsv(rows);
+  const page = fs.readFileSync(path.join(DIR, "lead-generation.html"), "utf8");
+
+  const claimed = page.match(/\(5 of ([\d,]+) rows shown\)/);
+  if (!claimed) {
+    fail("lead-generation.html: no '(5 of N rows shown)' claim found -- this check can no longer verify the page's row count, which is worse than a wrong number");
+  } else if (Number(claimed[1].replace(/,/g, "")) !== rows.length) {
+    fail(`lead-generation.html claims ${claimed[1]} rows; the current deliverable (${newest.f}) has ${rows.length}`);
+  } else {
+    ok(`lead-generation.html's claimed row count (${rows.length}) matches the current deliverable`);
+  }
+
+  // Every published sample row must exist in that deliverable -- by company name, since the page
+  // title-cases names for presentation ("AM Towing LLC" vs the source's "AM towing LLC") and that
+  // is a rendering choice, not a claim about the data.
+  const sampleNames = [...page.matchAll(/<tr><td>([^<]+)<\/td><td>D[A-Z]+<\/td>/g)].map((m) => m[1].trim());
+  if (sampleNames.length === 0) {
+    fail("lead-generation.html: no sample rows parsed -- the published exhibit is no longer being verified");
+  } else {
+    const missing = sampleNames.filter((n) => !csv.toLowerCase().includes(n.toLowerCase() + ","));
+    if (missing.length) fail(`lead-generation.html publishes ${missing.length} sample row(s) absent from the current deliverable: ${missing.join("; ")}`);
+    else ok(`all ${sampleNames.length} published sample rows are present in the current deliverable`);
+  }
+})();
+
 console.log(`\n${failed === 0 ? "ALL CHECKS PASSED" : failed + " CHECK(S) FAILED"} -- ${failed === 0 ? "safe to deploy from a static-site standpoint" : "do not deploy until these are resolved"}.`);
 process.exitCode = failed > 0 ? 1 : 0;
