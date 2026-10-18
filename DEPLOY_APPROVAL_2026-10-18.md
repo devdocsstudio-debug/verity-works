@@ -1,8 +1,19 @@
 # Website deployment — approval request, 2026-10-18
 
-**Nothing has been pushed.** Three commits exist locally and are not on the remote — two mine, one
-from a concurrent session (see the warning below). Pushing this repository publishes to GitHub Pages,
-which is a publication and needs the owner's authorization.
+**Nothing has been pushed.** Pushing this repository publishes to GitHub Pages, which is a
+publication and needs the owner's authorization.
+
+**This document no longer states how many commits are in the queue, on purpose.** It said "two",
+then "three", and by the time that was corrected a concurrent session had added a fifth. Any number
+written here is stale the moment another session commits -- the same claim-versus-artifact drift this
+project keeps paying for. The authoritative list is one command, run at the moment you deploy:
+
+```
+git log --oneline origin/main..HEAD
+```
+
+What IS stable is the rollback anchor: `e89df2598161d86df4675c99aef24ee79e3da3c5` is the commit
+currently live, and reverting to it undoes everything in the queue however long it has grown.
 
 ## Destination
 
@@ -12,7 +23,7 @@ which is a publication and needs the owner's authorization.
 | Branch | `main` → `origin/main` |
 | Public result | `https://devdocsstudio-debug.github.io/verity-works/` (GitHub Pages, builds from `main`) |
 | Current live commit | `e89df2598161d86df4675c99aef24ee79e3da3c5` |
-| Would become | `f0229b0` (**three** commits ahead) |
+| Would become | whatever `origin/main..HEAD` lists when you push -- see above |
 
 ## ⚠ A third commit entered this queue from another session
 
@@ -97,7 +108,7 @@ deliverable, and reports SKIP rather than failing when the engine checkout is ab
 ```
 cd C:\Users\Noam9\Projects\commercial-discovery\ventures\website
 node verify-site.js          # must print ALL CHECKS PASSED
-git log --oneline origin/main..HEAD   # must show exactly the THREE commits above
+git log --oneline origin/main..HEAD   # READ THIS LIST -- it is the authoritative delta
 git push origin main
 ```
 
@@ -121,7 +132,8 @@ body begins `Source: test-deploy-check` with a space rather than a plus.
 Both changes are content-only; there is no build step, no data migration and no state to unwind.
 
 ```
-git revert --no-edit f0229b0 c5ac5cb 1686810
+# revert every commit now in the queue, whatever it contains:
+git revert --no-edit $(git log --format=%H origin/main..HEAD | tr '\n' ' ')
 git push origin main
 ```
 
