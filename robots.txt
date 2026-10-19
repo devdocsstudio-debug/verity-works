@@ -1,3 +1,21 @@
+# MEASURED 2026-10-19: no crawler ever reads this file. robots.txt is only fetched from a
+# HOSTNAME ROOT, and this is a GitHub Pages PROJECT site, so the file Google actually requests is
+# https://devdocsstudio-debug.github.io/robots.txt -- which returns 404 (verified by HTTP probe).
+# This copy is served at /verity-works/robots.txt, a path no crawler looks at.
+#
+# Consequences, both confirmed rather than assumed:
+#   1. The Sitemap: line below is NEVER auto-discovered. The sitemap reaches Google only because
+#      it is submitted in Search Console. Do not "fix" sitemap discovery by editing this file.
+#   2. Nothing is blocked. A 404 robots.txt means "allow all", so crawling is unaffected and
+#      there is no indexing problem to solve here.
+#
+# Governing the hostname root would need a separate devdocsstudio-debug.github.io user-site repo.
+# That is an owner action and is NOT worth doing for this: it buys only sitemap auto-discovery,
+# which the Search Console submission already covers. Per-page <meta name="robots"> is what
+# actually controls indexing on this site -- see missed-call-audit.html for a live noindex.
+#
+# The file is kept because it is harmless, and because deleting it would make verify-site.js fail
+# and invite someone to recreate it without this note.
 User-agent: *
 Allow: /
 

@@ -13,7 +13,11 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Missed Call Audit">
 <meta name="twitter:description" content="A real audit of what your public reviews already say about unanswered calls.">
-<meta name="robots" content="index,follow">
+<!-- noindex 2026-10-19: this service is PAUSED by owner decision (2026-10-18) and must not be
+     quoted, promoted or sold. Sending organic search traffic to a page whose order CTA we would
+     have to refuse is worse than sending none. Restore to "index,follow" only when the service
+     resumes. See bin/verity-works-catalog-status.js for the pause reason. -->
+<meta name="robots" content="noindex,follow">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <script type="application/ld+json">
@@ -83,19 +87,16 @@
       <ul style="margin:0; padding-left:18px; font-size:13.5px; color:var(--ink-soft);"><li>Everything in the audit</li><li>Automated missed-call text-back</li></ul>
     </div>
   </div>
-  <p class="status-note" style="margin-top:14px;"><strong>Honest status:</strong> the automation tier needs our phone system reconnected before it can go live. It isn't available to order yet — the audit alone has no dependency and can start today.</p>
+  <p class="status-note" style="margin-top:14px;"><strong>Honest status:</strong> we are not taking new orders for either tier right now. We paused the audit while we rework how its conclusions get verified, and the automation tier still needs our phone system reconnected. The prices above are what these cost when they return; we are not quoting or invoicing them today.</p>
 
-  <div class="section-label">Request an audit</div>
-  <div class="card" style="text-align:center;">
-    <p style="margin-top:0;">This is everything needed to quote your job. Copy it, fill it in, and send it to <a href="mailto:devdocsstudio@gmail.com?subject=Missed%20call%20audit%20request">devdocsstudio@gmail.com</a>. (Audit only — automation isn't orderable yet.)</p>
-    <pre class="order-brief" id="order-brief">Business name:
-Location (city and state):
-Where customers usually find you (Google, Yelp, Facebook, other):</pre>
-    <div class="brief-actions">
-      <a class="btn" href="mailto:devdocsstudio@gmail.com?subject=Missed%20call%20audit%20request&body=Business%20name%3A%0ALocation%20%28city%20and%20state%29%3A%0AWhere%20customers%20usually%20find%20you%20%28Google%2C%20Yelp%2C%20Facebook%2C%20other%29%3A%0A">Open it in your email app</a>
-      <button type="button" class="btn-quiet" data-copy-brief="#order-brief" hidden>Copy the brief</button>
-    </div>
-    <p style="font-size:12.5px; color:var(--ink-soft); margin-top:12px;">What happens next: we confirm the $35 price covers your request, then send a secure PayPal invoice — your audit starts once that's paid. Sending the brief isn't a completed purchase.</p>
+  <div class="section-label">Not currently orderable</div>
+  <div class="card">
+    <p style="margin-top:0;">This service is paused, so there is no order form here. If you want to be told when it
+    reopens, email <a href="mailto:devdocsstudio@gmail.com?subject=Missed%20call%20audit%20%E2%80%94%20notify%20me%20when%20it%20reopens">devdocsstudio@gmail.com</a>
+    and we will reply when it does — that is the only thing that email does, and it is not an order.</p>
+    <p style="font-size:12.5px; margin:8px 0 0;">Our other services are available now:
+    <a href="content-repurposing.html">content repurposing</a>, <a href="devdocs-studio.html">developer documentation</a>
+    and <a href="lead-generation.html">lead generation</a>.</p>
     <p style="font-size:12.5px; margin:8px 0 0;"><a href="terms.html#missed-call-audit">Scope, delivery and the refund guarantee for this service &rarr;</a></p>
   </div>
 </main>
@@ -105,7 +106,6 @@ Where customers usually find you (Google, Yelp, Facebook, other):</pre>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>
-<script src="assets/order-brief.js"></script>
 <!-- GoatCounter disabled until a real account exists -- run set-analytics-code.sh to enable:
 <script data-goatcounter="https://GOATCOUNTER_CODE_PLACEHOLDER.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 -->

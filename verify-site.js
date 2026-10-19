@@ -60,15 +60,25 @@ for (const page of PAGES) {
   }
 }
 
-// 4. sitemap.xml lists exactly the real pages that exist -- no stale/missing entries.
+// 4. sitemap.xml agrees with each page's OWN robots directive -- checked in both directions.
+// Was "every page must be listed", which is wrong and fired on correct work: a noindex page in the
+// sitemap is a real defect (we ask Google to crawl a URL we then tell it not to index), and
+// removing missed-call-audit.html when its service was paused made this gate FAIL on the fix.
+// A sitemap is a list of URLs we want indexed, so the page's robots tag is the authority.
 const sitemapPath = path.join(DIR, "sitemap.xml");
 if (fs.existsSync(sitemapPath)) {
   const sitemap = fs.readFileSync(sitemapPath, "utf8");
   const locs = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
   for (const page of PAGES) {
-    const matches = locs.some((l) => l.endsWith(page) || (page === "index.html" && l.endsWith("/")));
-    if (matches) ok(`sitemap.xml lists ${page}`);
-    else fail(`sitemap.xml is missing ${page}`);
+    const fp = path.join(DIR, page);
+    if (!fs.existsSync(fp)) continue;
+    const robots = (fs.readFileSync(fp, "utf8").match(/name="robots"\s+content="([^"]*)"/) || [])[1] || "";
+    const noindex = /noindex/i.test(robots);
+    const listed = locs.some((l) => l.endsWith(page) || (page === "index.html" && l.endsWith("/")));
+    if (noindex && listed) fail(`sitemap.xml lists ${page}, but that page is noindex -- remove it`);
+    else if (noindex) ok(`sitemap.xml correctly omits ${page} (noindex)`);
+    else if (listed) ok(`sitemap.xml lists ${page}`);
+    else fail(`sitemap.xml is missing ${page} (which is index,follow)`);
   }
 }
 
