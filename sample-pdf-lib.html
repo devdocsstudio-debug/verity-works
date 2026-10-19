@@ -14,9 +14,21 @@
 <meta name="twitter:title" content="pdf-lib Quick Reference (writing sample)">
 <meta name="twitter:description" content="A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.">
 <meta name="robots" content="index,follow">
+<!-- font-display:optional, NOT swap, and only on these generated sample pages. MEASURED 2026-10-19:
+     with swap, these prose-heavy pages shifted badly as Inter replaced the Segoe UI fallback and
+     paragraphs reflowed to fewer lines -- sample-zod-v4.html measured CLS 0.2062 against Google's
+     0.1 threshold. optional takes it to 0.0000 on all three, verified at desktop and iPhone 13,
+     with Inter, Fraunces and JetBrains Mono all still applied.
+     TRADE-OFF, stated plainly: on a genuinely slow first visit the browser may keep the fallback
+     for that visit and use the webfont only once cached. For portfolio pages that is a better deal
+     than content jumping while someone reads code. The main pages KEEP swap -- they already measure
+     0.0003-0.007 and have no shift to buy out.
+     A metric-matched @font-face fallback (size-adjust:108.2%, derived from a real width measurement)
+     was tried FIRST and failed: no improvement here and it made sample-better-sqlite3 worse
+     (0.0323 -> 0.1948). It was reverted rather than kept. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=optional">
 <link rel="stylesheet" href="assets/base.css">
 <style>
   /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
