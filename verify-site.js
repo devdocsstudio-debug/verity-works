@@ -20,7 +20,21 @@ const PAGES = ["index.html", "lead-generation.html", "missed-call-audit.html", "
   // samples online, so they are load-bearing for acquisition, not decoration. Generated from their
   // markdown sources by build-samples.js -- run `node build-samples.js --check` to confirm the
   // committed pages still match.
-  "sample-better-sqlite3.html", "sample-pdf-lib.html", "sample-zod-v4.html"];
+  "sample-better-sqlite3.html", "sample-pdf-lib.html", "sample-zod-v4.html",
+  // Privacy policy (2026-10-19). Served from a DIRECTORY so its public URL is a clean
+  // /privacy-policy/ -- which is also the URL given to the LinkedIn Developer App, so it must keep
+  // working. Being a directory index makes it the first page here whose URL is not its filename and
+  // whose assets sit one level up; urlFor() and the ref resolution below exist for that.
+  "privacy-policy/index.html"];
+
+// A page's public URL path is not always its filename: a directory index is served as the
+// directory. Without this, privacy-policy/index.html looks absent from the sitemap and its
+// canonical looks wrong, which is how a correct page gets "fixed" into a broken one.
+function urlFor(page) {
+  if (page === "index.html") return "";
+  if (page.endsWith("/index.html")) return page.slice(0, -"index.html".length);
+  return page;
+}
 const REQUIRED_META = ["meta charset", "name=\"viewport\"", "meta name=\"description\"", "rel=\"canonical\"", "og:title", "twitter:card", "name=\"robots\""];
 
 let failed = 0;
@@ -43,7 +57,9 @@ for (const page of PAGES) {
   while ((m = hrefPattern.exec(text))) {
     const ref = m[1];
     if (ref.startsWith("http") || ref.startsWith("//")) continue; // external (incl. protocol-relative, e.g. analytics), not this check's job
-    const target = path.join(DIR, ref);
+    // Relative to the PAGE, not the site root -- privacy-policy/index.html refers to
+    // "../assets/base.css", which only resolves from its own directory.
+    const target = path.resolve(DIR, path.dirname(page), ref);
     if (fs.existsSync(target)) ok(`${page}: ${ref} resolves`);
     else fail(`${page}: broken reference to "${ref}" -- file does not exist`);
   }
@@ -74,7 +90,8 @@ if (fs.existsSync(sitemapPath)) {
     if (!fs.existsSync(fp)) continue;
     const robots = (fs.readFileSync(fp, "utf8").match(/name="robots"\s+content="([^"]*)"/) || [])[1] || "";
     const noindex = /noindex/i.test(robots);
-    const listed = locs.some((l) => l.endsWith(page) || (page === "index.html" && l.endsWith("/")));
+    const u = urlFor(page);
+    const listed = locs.some((l) => (u === "" ? l.endsWith("/") : l.endsWith(u)));
     if (noindex && listed) fail(`sitemap.xml lists ${page}, but that page is noindex -- remove it`);
     else if (noindex) ok(`sitemap.xml correctly omits ${page} (noindex)`);
     else if (listed) ok(`sitemap.xml lists ${page}`);
@@ -92,7 +109,7 @@ if (fs.existsSync(sitemapPath)) {
 // production URL is configured and this check cannot drift from it.
 if (fs.existsSync(sitemapPath)) {
   const homeLoc = [...fs.readFileSync(sitemapPath, "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)]
-    .map((m) => m[1]).find((l) => l.endsWith("/"));
+    .map((m) => m[1]).filter((l) => l.endsWith("/")).sort((a, b) => a.length - b.length)[0];
   if (!homeLoc) {
     fail("sitemap.xml has no root <loc> ending in / -- cannot determine the canonical base URL");
   } else {
@@ -100,7 +117,7 @@ if (fs.existsSync(sitemapPath)) {
       const fp = path.join(DIR, page);
       if (!fs.existsSync(fp)) continue;
       const found = (fs.readFileSync(fp, "utf8").match(/<link[^>]+rel="canonical"[^>]+href="([^"]+)"/) || [])[1];
-      const expected = page === "index.html" ? homeLoc : homeLoc + page;
+      const expected = homeLoc + urlFor(page);
       if (found === expected) ok(`${page}: canonical is self-referential`);
       else fail(`${page}: canonical is "${found}" but should be "${expected}" -- a wrong canonical de-indexes this page`);
     }
