@@ -65,7 +65,11 @@
   <div class="card">
     <ul class="no-list">
       <li><strong>This website sets no cookies and runs no analytics.</strong> There is no tag manager, no advertising
-      pixel and no social tracking script on any page. We verified this by loading every public page in a real browser
+      pixel and no social tracking script on any page.
+      <!-- analytics-draft: when analytics is enabled, this bullet becomes:
+           <li><strong>This website sets no cookies.</strong> We count visits and button presses with
+           Umami, which is cookieless and stores nothing in your browser. There is no tag manager, no
+           advertising pixel and no social tracking script on any page. --> We verified this by loading every public page in a real browser
       and recording what it stored and who it contacted &mdash; not by reading our own source code.</li>
       <li><strong>There is no form, no account and no login.</strong> Every service is ordered by email, which means you
       decide what to send us and you can see it before you send it.</li>
@@ -85,6 +89,30 @@
       <dt>Analytics</dt>
       <dd><strong>None running.</strong> No visitor analytics, heatmaps, session recording or A/B testing. If we ever add
       analytics, this page changes before it goes live, and we will say which tool it is.</dd>
+      <!-- analytics-draft: APPLY THIS BLOCK AT THE SAME TIME ANALYTICS IS ENABLED, NOT BEFORE.
+           Replace the <dt>Analytics</dt> / <dd> pair ABOVE with the <dt>/<dd> pair below, then run
+           ./set-analytics-code.sh <umami-website-id>. That script REFUSES to run while the live
+           page still claims no analytics, so these two cannot ship out of step.
+
+      <dt>Analytics</dt>
+      <dd>We use <strong>Umami</strong> (umami.is) to count visits and to see which buttons get
+      used. It is <strong>cookieless</strong>: it sets no cookie, stores nothing in your browser,
+      gives you no identifier, and cannot follow you to another website &mdash; which is why this
+      page still has no cookie banner. Umami records the page you viewed, the approximate
+      information every web request carries anyway (country, browser, operating system, screen size,
+      and the site that linked you), and nothing that identifies you. Its own terms are at
+      <a href="https://umami.is/privacy" target="_blank" rel="noopener">umami.is/privacy</a>; data is
+      held on servers in the US and EU and we keep it for six months.</dd>
+
+      <dt>What we count as a &ldquo;click&rdquo;</dt>
+      <dd>When you press an order button, copy an order brief, or open these terms, we record that
+      <em>the button was pressed</em> and which service page it was on. <strong>That is all it
+      means.</strong> Opening an order email hands a draft to your mail program; we cannot see
+      whether you sent it, changed it, or closed it, and we never see what you typed. A real inquiry
+      is an email that arrives in our inbox, and a real order is a paid invoice &mdash; those are
+      counted from the mailbox and from PayPal, never from this website. No event carries your email
+      address, the contents of a draft, or anything from the web address you arrived on.</dd>
+           -->
 
       <dt>Browser storage</dt>
       <dd><strong>None.</strong> Nothing is written to local storage, session storage or IndexedDB on any page.</dd>
@@ -287,5 +315,15 @@
   <div class="wrap">Verity Works — independent professional services, built and operated by <a href="https://www.linkedin.com/in/noam-mor-27a510442/" target="_blank" rel="noopener">Noam Mor</a>.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="../terms.html">Service terms &amp; guarantees</a></span></div>
 </footer>
 <script src="../assets/nav-toggle.js"></script>
+<!-- ANALYTICS: Umami Cloud, selected by the owner 2026-10-19. NOT ACTIVE.
+     Replaces the previous GoatCounter placeholder, which was dropped because GoatCounter's hosted
+     FREE tier is non-commercial only and Verity Works is a commercial business; Umami Cloud's free
+     Hobby tier carries no such restriction (verified at umami.is/pricing: $0, 100K events/month,
+     1 website, 6-month retention, custom events INCLUDED, GDPR/CCPA, no cookie banner required).
+     The tag below stays commented out until the owner supplies a real website-id AND approves
+     publication. Enable with: ./set-analytics-code.sh <umami-website-id>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="UMAMI_WEBSITE_ID_PLACEHOLDER"></script>
+-->
+<script src="../assets/analytics.js"></script>
 </body>
 </html>
