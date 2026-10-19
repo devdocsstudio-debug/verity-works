@@ -100,7 +100,7 @@ function mdToHtml(md) {
       i++; // closing fence
       // tabindex + an accessible name because .sample pre scrolls horizontally: a scrollable
       // region that only a mouse can scroll hides real content from keyboard users (WCAG 2.1.1).
-      out.push(`<pre tabindex="0" role="region" aria-label="Code sample"><code${lang ? ` class="language-${lang}"` : ""}>${esc(body.join("\n"))}</code></pre>`);
+      out.push(`<pre tabindex="0" role="group" aria-label="Code sample"><code${lang ? ` class="language-${lang}"` : ""}>${esc(body.join("\n"))}</code></pre>`);
       continue;
     }
     if (/^#{1,6}\s/.test(line)) {
@@ -174,7 +174,9 @@ function page(sample, bodyHtml) {
 <meta name="twitter:title" content="${sample.ogTitle}">
 <meta name="twitter:description" content="${sample.description}">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
   /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first

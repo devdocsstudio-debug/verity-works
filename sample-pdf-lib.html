@@ -14,7 +14,9 @@
 <meta name="twitter:title" content="pdf-lib Quick Reference (writing sample)">
 <meta name="twitter:description" content="A writing sample: a task-oriented pdf-lib reference covering the five operations every project needs, with examples run against the real package.">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
   /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
@@ -51,6 +53,7 @@
     <nav class="site-nav" aria-label="Main">
       <a href="index.html">Home</a>
       <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
       <a href="content-repurposing.html">Content Repurposing</a>
       <a href="devdocs-studio.html">DevDocs Studio</a>
     </nav>
@@ -63,7 +66,7 @@
 <blockquote><strong>Sample scope note:</strong> this is an independent documentation sample published by DevDocs Studio, the technical-writing service from Verity Works, to show how we work. It is not an official pdf-lib document and was not commissioned by its maintainers. It documents the real, public <code>pdf-lib</code> npm package at <strong>version 1.17.1</strong> by reading its source and type definitions directly. Every code example and every stated behavior below was executed against that installed version before publication — the verification script is <code>sample-pdf-lib-claims-verify.js</code>.</blockquote>
 <hr>
 <h2>Create a new PDF and draw text on it</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
 
 const doc = await PDFDocument.create();
 const font = await doc.embedFont(StandardFonts.Helvetica);
@@ -77,11 +80,11 @@ const bytes = await doc.save(); // Uint8Array — write it to disk, a response b
 <p><code>drawText</code>'s <code>y</code> is measured <strong>from the bottom of the page</strong>, not the top — so <code>y: 120</code> on a 200pt-tall page is near the middle, not near the bottom.</p>
 <p><code>addPage()</code> with no size argument gives you <strong>A4</strong> (595.28 × 841.89 points), not US Letter. If you want Letter, pass it explicitly — <code>PageSizes</code> is exported alongside <code>PDFDocument</code>, so <code>doc.addPage(PageSizes.Letter)</code>, or the literal <code>[612, 792]</code>.</p>
 <p>And the <code>font</code> option is <strong>optional, which is the trap</strong> — not required. Omit it and pdf-lib quietly embeds Helvetica for you rather than raising an error, so a document whose font never loaded looks like a document that chose Helvetica. <code>page.setFont(font)</code> sets a page-wide default for every subsequent <code>drawText</code> on that page, which is the cleaner way to avoid threading <code>font</code> through every call:</p>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const times = await doc.embedFont(StandardFonts.TimesRoman);
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const times = await doc.embedFont(StandardFonts.TimesRoman);
 page.setFont(times);
 page.drawText('uses the page default', { x: 50, y: 80, size: 14 }); // no font option needed</code></pre>
 <h2>Load an existing PDF and add a page</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const existingBytes = fs.readFileSync('input.pdf');
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const existingBytes = fs.readFileSync('input.pdf');
 const doc = await PDFDocument.load(existingBytes);
 
 const page = doc.addPage(); // appended after the existing pages
@@ -90,20 +93,20 @@ page.drawText('Appended page', { x: 50, y: page.getHeight() - 50, size: 18 });
 fs.writeFileSync('output.pdf', await doc.save());</code></pre>
 <p><code>PDFDocument.load()</code> parses the whole file into an in-memory document object — there's no streaming/partial-load mode. For very large PDFs (hundreds of MB) this matters for memory use; for typical generated reports and forms it's a non-issue.</p>
 <h2>Merge pages from one PDF into another</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const target = await PDFDocument.create();
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const target = await PDFDocument.create();
 const [copiedPage] = await target.copyPages(sourceDoc, [0]); // indices of pages to copy, 0-based
 target.addPage(copiedPage);</code></pre>
 <p><code>copyPages</code> is called <strong>on the destination document</strong>, with the source document and an array of page indices as arguments — the direction of the call is the opposite of what most people guess on the first try (<code>target.copyPages(source, ...)</code>, not <code>source.copyPages(target, ...)</code>). The returned pages aren't attached to the target automatically; each one still needs an explicit <code>addPage()</code>.</p>
 <h2>Getting and checking page count/size</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">doc.getPageCount();         // number of pages currently in the document
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">doc.getPageCount();         // number of pages currently in the document
 doc.getPage(0).getSize();   // { width, height } in points for a specific page</code></pre>
 <p>Useful for defensive code before an append/merge operation (e.g. "has this PDF already got a cover page?") without re-parsing the file a second time.</p>
 <h2>Fill in a form field (when the source PDF has one)</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const form = doc.getForm();
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const form = doc.getForm();
 form.getTextField('applicant_name').setText('Ada Lovelace');
 form.flatten(); // optional: bakes the filled values into the page content and removes the editable field</code></pre>
 <p><code>getForm()</code> does <strong>not</strong> throw when the PDF has no form — that is the trap worth knowing. On a form-less document it returns an empty <code>PDFForm</code> (<code>getFields().length === 0</code>) and <em>adds</em> an AcroForm to the document, so a pipeline that calls <code>getForm()</code> defensively on every file quietly changes files that never had a form. The call that actually throws is the field lookup:</p>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">form.getTextField('applicant_name');
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">form.getTextField('applicant_name');
 // throws Error: PDFDocument has no form field with the name "applicant_name"</code></pre>
 <p>So check <code>form.getFields().length</code> (or wrap the <code>getTextField</code> call) rather than relying on <code>getForm()</code> to tell you whether a PDF is fillable.</p>
 <hr>
@@ -117,7 +120,7 @@ example is run against the real package before it is published. Other samples: <
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with pdf-lib or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span><span class="sep"><a href="privacy-policy/">Privacy</a></span></div>
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with pdf-lib or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span></div>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>

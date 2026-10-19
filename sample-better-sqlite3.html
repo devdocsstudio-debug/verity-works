@@ -14,7 +14,9 @@
 <meta name="twitter:title" content="better-sqlite3 Common Patterns (writing sample)">
 <meta name="twitter:description" content="A writing sample: the five better-sqlite3 patterns that come up in almost every real project, with examples run against the real package.">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <style>
   /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
@@ -51,6 +53,7 @@
     <nav class="site-nav" aria-label="Main">
       <a href="index.html">Home</a>
       <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
       <a href="content-repurposing.html">Content Repurposing</a>
       <a href="devdocs-studio.html">DevDocs Studio</a>
     </nav>
@@ -63,7 +66,7 @@
 <blockquote><strong>Sample scope note:</strong> this is an independent documentation sample published by DevDocs Studio, the technical-writing service from Verity Works, to show how we work. It is not an official better-sqlite3 document and was not commissioned by its maintainers. It documents the real, public <code>better-sqlite3</code> npm package at <strong>version 13.0.3</strong> by reading its source directly. Every code example and every stated behavior on this page was executed against that installed version before publication — none of it is assumed or guessed. The verification script is <code>sample-better-sqlite3-claims-verify.js</code>.</blockquote>
 <hr>
 <h2>1. Open a database and set the journal mode</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const Database = require('better-sqlite3');
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const Database = require('better-sqlite3');
 const db = new Database('app.db');
 
 // write-ahead logging: better concurrent read/write behavior than the default
@@ -71,7 +74,7 @@ db.pragma('journal_mode = WAL');</code></pre>
 <p><code>db.pragma()</code> both executes a SQLite <code>PRAGMA</code> and returns its result as an array of rows — here, <code>[{ journal_mode: 'wal' }]</code>. Most projects should set WAL mode once, right after opening, unless the database lives on a filesystem that doesn't support it well (some network drives).</p>
 <h2>2. Prepared statements: <code>run</code>, <code>get</code>, <code>all</code></h2>
 <p>better-sqlite3 is synchronous — no callbacks, no promises, no <code>await</code>. A prepared statement is reused across calls instead of re-parsed each time:</p>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const insert = db.prepare('INSERT INTO users (name, balance) VALUES (?, ?)');
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const insert = db.prepare('INSERT INTO users (name, balance) VALUES (?, ?)');
 const info = insert.run('Ada', 100);
 // info -&gt; { changes: 1, lastInsertRowid: 1 }
 
@@ -83,12 +86,12 @@ const all = db.prepare('SELECT * FROM users ORDER BY id').all();
 // -&gt; [ { id: 1, name: 'Ada', balance: 100 }, { id: 2, name: 'Grace', balance: 50 } ]</code></pre>
 <p>Use <code>.run()</code> for statements that don't return rows (INSERT/UPDATE/DELETE), <code>.get()</code> for exactly one row or <code>undefined</code>, and <code>.all()</code> to materialize every matching row into memory at once.</p>
 <p><strong>When a result set could be large</strong>, prefer <code>.iterate()</code> over <code>.all()</code> — it yields rows one at a time instead of allocating the whole array:</p>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">for (const row of db.prepare('SELECT * FROM users').iterate()) {
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">for (const row of db.prepare('SELECT * FROM users').iterate()) {
   // row is produced lazily
 }</code></pre>
 <h2>3. Transactions are plain functions</h2>
 <p><code>db.transaction()</code> wraps a normal JS function; calling the wrapped function runs it inside <code>BEGIN</code>/<code>COMMIT</code>, with automatic <code>ROLLBACK</code> if it throws:</p>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">const transfer = db.transaction((fromId, toId, amount) =&gt; {
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const transfer = db.transaction((fromId, toId, amount) =&gt; {
   db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(amount, fromId);
   db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, toId);
 });
@@ -97,13 +100,13 @@ transfer(1, 2, 25); // one atomic unit; throws roll back both statements togethe
 <p><strong>A frequent misreading of this API:</strong> the transaction only rolls back on a thrown JS error. An <code>UPDATE ... WHERE id = ?</code> that matches zero rows does <strong>not</strong> throw — it just reports <code>changes: 0</code> — so a transfer to a nonexistent account id still commits the debit half. If "the recipient must exist" is a real invariant, check for it (e.g. inspect <code>changes</code>, or verify the row first) and throw inside the transaction function yourself; the library won't infer that intent for you.</p>
 <h2>4. User-defined SQL functions</h2>
 <p>Custom logic can be registered and called directly from SQL:</p>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">db.function('SHOUT', (text) =&gt; String(text).toUpperCase());
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">db.function('SHOUT', (text) =&gt; String(text).toUpperCase());
 
 db.prepare('SELECT SHOUT(name) AS shouted FROM users WHERE id = 1').get();
 // -&gt; { shouted: 'ADA' }</code></pre>
 <p>Useful for small, pure transforms (normalizing text, hashing, formatting) that are awkward to express in SQL but don't justify pulling rows into JS first.</p>
 <h2>5. Backing up a live database</h2>
-<pre tabindex="0" role="region" aria-label="Code sample"><code class="language-js">await db.backup('app-backup.db');
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">await db.backup('app-backup.db');
 // the live database stays open and usable throughout; the backup is a consistent point-in-time copy</code></pre>
 <p><code>.backup()</code> returns a Promise and uses SQLite's own online backup API, so it's safe to run against a database that's still being written to — unlike just copying the <code>.db</code> file, which can capture a half-written page.</p>
 <hr>
@@ -117,7 +120,7 @@ example is run against the real package before it is published. Other samples: <
 </main>
 
 <footer class="site-footer">
-  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3 or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span><span class="sep"><a href="privacy-policy/">Privacy</a></span></div>
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with better-sqlite3 or its maintainers.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span></div>
 </footer>
 <script src="assets/ref-tracking.js"></script>
 <script src="assets/nav-toggle.js"></script>

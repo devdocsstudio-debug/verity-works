@@ -14,7 +14,9 @@
 <meta name="twitter:title" content="DevDocs Studio">
 <meta name="twitter:description" content="API/developer documentation where every code example is run before it's published.">
 <meta name="robots" content="index,follow">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap">
 <link rel="stylesheet" href="assets/base.css">
 <script type="application/ld+json">
 {
@@ -32,7 +34,7 @@
 }
 </script>
 <style>
-  .code-sample { background: #050402; color: #E4C878; border: 1px solid var(--rule); border-radius: 2px; padding: 14px 16px; font-size: 13px; font-family: 'JetBrains Mono', monospace; overflow-x: auto; margin: 0 0 12px; }
+  .code-sample { background: #050402; color: #E4C878; border: 1px solid var(--rule); border-radius: 2px; padding: 14px 16px; font-size: 13px; font-family: 'IBM Plex Mono', ui-monospace, monospace; overflow-x: auto; margin: 0 0 12px; }
   .gotcha { font-size: 15px; color: var(--ink); }
   .gotcha b { color: var(--accent-bright); }
   .tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -55,12 +57,12 @@
 
 <main id="main" class="wrap">
   <h1 style="font-size:clamp(28px,5vw,36px); line-height:1.15; text-wrap:balance;">Documentation people actually finish reading.</h1>
-  <p style="font-size:18px; color:var(--ink-soft); max-width:58ch;">Task-oriented API and developer guides for real libraries and APIs. <strong>Every code example is run against the real package before it's published.</strong> Not assumed, not AI-paraphrased from the README.</p>
+  <p style="font-size:18px; color:var(--ink-soft); max-width:659px;">Task-oriented API and developer guides for real libraries and APIs. <strong>Every code example is run against the real package before it's published.</strong> Not assumed, not AI-paraphrased from the README.</p>
 
   <h2 class="section-label">Proof, not promises</h2>
   <div class="card" style="margin-bottom:14px;">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">better-sqlite3 — Common Patterns Guide</p>
-    <pre class="code-sample">const transfer = db.transaction((fromId, toId, amount) =&gt; {
+    <pre class="code-sample" tabindex="0" role="group" aria-label="Code sample, scrollable">const transfer = db.transaction((fromId, toId, amount) =&gt; {
   db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(amount, fromId);
   db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(amount, toId);
 });</pre>
@@ -69,7 +71,7 @@
   </div>
   <div class="card" style="margin-bottom:14px;">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">pdf-lib — Quick Reference</p>
-    <pre class="code-sample">const target = await PDFDocument.create();
+    <pre class="code-sample" tabindex="0" role="group" aria-label="Code sample, scrollable">const target = await PDFDocument.create();
 const [copiedPage] = await target.copyPages(sourceDoc, [0]);
 target.addPage(copiedPage);</pre>
     <p class="gotcha"><b>The gotcha most guides miss:</b> <code>copyPages</code> is called on the destination document, with the source as an argument.</p>
@@ -77,7 +79,7 @@ target.addPage(copiedPage);</pre>
   </div>
   <div class="card">
     <p style="font-weight:600; font-size:14px; margin:0 0 10px;">jsonwebtoken — Algorithm-Confusion Check</p>
-    <pre class="code-sample">// jwt.verify() with NO `algorithms` option -- jsonwebtoken@9 default behavior
+    <pre class="code-sample" tabindex="0" role="group" aria-label="Code sample, scrollable">// jwt.verify() with NO `algorithms` option -- jsonwebtoken@9 default behavior
 jwt.verify(forgedHS256Token, rsaPublicKey);
 // -&gt; REJECTED: "invalid algorithm". The classic RS256-&gt;HS256 attack is
 //    already mitigated by default. Correct library behavior, not a bug.</pre>
