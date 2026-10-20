@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Verity Works IG 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Tokens lifted from the live Verity Works site so the post is on-brand by construction,
+     not by eye: near-black ground, warm off-white ink, one amber accent. */
+  :root{
+    --ground:#0B0B0C; --panel:#141416; --rule:#2A2A2D;
+    --ink:#F2EFE9; --ink-soft:#A8A49C; --accent:#E4C878;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1350px}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:Inter,system-ui,sans-serif;
+    padding:84px 76px; display:flex; flex-direction:column;
+  }
+  .label{
+    font-size:19px; font-weight:600; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--accent);
+  }
+  h1{
+    font-family:Fraunces,Georgia,serif; font-weight:600;
+    font-size:86px; line-height:1.05; letter-spacing:-.015em;
+    margin-top:60px; max-width:17ch;
+  }
+  .code{
+    margin-top:72px; background:var(--panel); border:1px solid var(--rule);
+    border-radius:3px; padding:44px 46px;
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:27px; line-height:1.78; color:var(--accent);
+    white-space:pre; overflow:hidden;
+  }
+  /* Lifted from #6E6A63: at 27px on near-black that sat under 4.5:1, and the comment carries the
+     actual insight -- the line a reader is meant to take away must not be the faintest one. */
+  .code .dim{color:#938D83}
+  .kicker{
+    margin-top:72px; font-size:40px; line-height:1.38; color:var(--ink);
+    font-weight:400; max-width:30ch;
+  }
+  .kicker b{font-weight:600; color:var(--accent)}
+  footer{
+    margin-top:auto; display:flex; align-items:baseline; justify-content:space-between;
+    border-top:1px solid var(--rule); padding-top:30px;
+  }
+  .site{font-family:'IBM Plex Mono',monospace; font-size:23px; color:var(--ink-soft)}
+  .tag{font-size:21px; color:var(--ink-soft); letter-spacing:.04em}
+</style></head>
+<body>
+  <div class="label">Verity Works</div>
+
+  <h1>Most code samples in docs have never been run.</h1>
+
+  <div class="code">const transfer = db.transaction((from, to, amt) =&gt; {
+  <span class="dim">// rolls back only on a thrown error --</span>
+  <span class="dim">// an UPDATE matching zero rows does not throw</span>
+});</div>
+
+  <p class="kicker">We run every example against the <b>real package</b> before it ships &mdash; and send you the script that ran it, so you can re-run it yourself.</p>
+
+  <footer>
+    <span class="site">verityworks.ai</span>
+    <span class="tag">Developer documentation</span>
+  </footer>
+</body></html>
