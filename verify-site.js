@@ -243,27 +243,71 @@ for (const page of [...PAGES, "404.html"]) {
   if (!exporter) { console.log("  SKIP: lead-generation.html sample not cross-checked (maintenance-engine checkout not found)"); return; }
 
   const leadsDir = path.join(ENGINE, "state", "filing-leads");
-  let newest = null;
+  let captures = [];
   try {
-    newest = fs.readdirSync(leadsDir)
+    captures = fs.readdirSync(leadsDir)
       .filter((f) => /^colorado-filing-segmented-.*\.json$/.test(f))
       .map((f) => ({ f, m: fs.statSync(path.join(leadsDir, f)).mtimeMs }))
-      .sort((a, b) => b.m - a.m)[0];
+      .sort((a, b) => b.m - a.m);
   } catch { /* no data dir */ }
-  if (!newest) { console.log("  SKIP: lead-generation.html sample not cross-checked (no segmented source found)"); return; }
+  if (!captures.length) { console.log("  SKIP: lead-generation.html sample not cross-checked (no segmented source found)"); return; }
 
-  const entries = JSON.parse(fs.readFileSync(path.join(leadsDir, newest.f), "utf8")).entries;
-  const rows = exporter.filterRows(entries, { city: "Denver" });
-  const csv = exporter.toCsv(rows);
+  const newest = captures[0];
   const page = fs.readFileSync(path.join(DIR, "lead-generation.html"), "utf8");
 
+  // THE CAPTURE IS A ROLLING ~14-DAY WINDOW, so "the newest file" is the wrong comparison and this
+  // check used to make it. Measured 2026-10-20: the page says "Denver, 3-16 Oct 2026 ... 860 rows",
+  // which is EXACTLY right for the 2026-10-17 capture (860 Denver rows, window 10-03..10-16). The
+  // 10-20 capture covers 10-06..10-18 and holds 796. Comparing them failed a correct page and
+  // blocked a deploy -- the same cry-wolf failure as a permanently-red gate, just inverted.
+  //
+  // So: parse the window the page itself states, and verify the claim against a capture that
+  // actually COVERS that window. A claim about a dated extract is a claim about one artifact, and
+  // it stays true of that artifact forever.
+  const MONTHS = { jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06", jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12" };
+  const win = page.match(/Denver,\s*(\d{1,2})\s*[-–—]\s*(\d{1,2})\s+([A-Za-z]{3})[a-z]*\s+(\d{4})/);
   const claimed = page.match(/\(5 of ([\d,]+) rows shown\)/);
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const dayOf = (r) => String(r.formDate || "").slice(0, 10);
+  const denverIn = (entries, from, to) =>
+    exporter.filterRows(entries, { city: "Denver" }).filter((r) => { const d = dayOf(r); return d >= from && d <= to; });
+  const covers = (entries, from, to) => {
+    const days = exporter.filterRows(entries, { city: "Denver" }).map(dayOf).filter(Boolean).sort();
+    return days.length > 0 && days[0] <= from && days[days.length - 1] >= to;
+  };
+
+  let csv = exporter.toCsv(exporter.filterRows(JSON.parse(fs.readFileSync(path.join(leadsDir, newest.f), "utf8")).entries, { city: "Denver" }));
+
   if (!claimed) {
     fail("lead-generation.html: no '(5 of N rows shown)' claim found -- this check can no longer verify the page's row count, which is worse than a wrong number");
-  } else if (Number(claimed[1].replace(/,/g, "")) !== rows.length) {
-    fail(`lead-generation.html claims ${claimed[1]} rows; the current deliverable (${newest.f}) has ${rows.length}`);
+  } else if (!win) {
+    fail("lead-generation.html: the sample heading no longer states a date window, so its row count cannot be tied to a specific extract -- restore the 'Denver, D-D Mon YYYY' form");
   } else {
-    ok(`lead-generation.html's claimed row count (${rows.length}) matches the current deliverable`);
+    const mon = MONTHS[win[3].toLowerCase()];
+    const from = `${win[4]}-${mon}-${pad(win[1])}`;
+    const to = `${win[4]}-${mon}-${pad(win[2])}`;
+    const want = Number(claimed[1].replace(/,/g, ""));
+
+    let match = null;
+    const tried = [];
+    for (const c of captures) {
+      let entries;
+      try { entries = JSON.parse(fs.readFileSync(path.join(leadsDir, c.f), "utf8")).entries; } catch { continue; }
+      if (!covers(entries, from, to)) continue;              // partial capture cannot evidence the claim
+      const n = denverIn(entries, from, to).length;
+      tried.push(`${c.f}=${n}`);
+      if (n === want) { match = { c, n, entries }; break; }
+    }
+
+    if (match) {
+      ok(`lead-generation.html's ${want} Denver rows for ${from}..${to} match ${match.c.f}`);
+      csv = exporter.toCsv(exporter.filterRows(match.entries, { city: "Denver" }));
+    } else if (!tried.length) {
+      fail(`lead-generation.html claims ${want} Denver rows for ${from}..${to}, but NO capture covers that window -- the evidence for the published figure is gone, so either re-capture it or restate the page to a window we still hold`);
+    } else {
+      fail(`lead-generation.html claims ${want} Denver rows for ${from}..${to}; no capture covering that window agrees (${tried.join(", ")})`);
+    }
   }
 
   // Every published sample row must exist in that deliverable -- by company name, since the page
