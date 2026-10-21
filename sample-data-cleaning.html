@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<title>CSV Cleaning Pipeline: Every Change Reported — Portfolio Sample — Verity Works</title>
+<meta name="description" content="An independent portfolio sample: a zero-dependency CSV cleaning and validation pipeline that records every change made and rejects every unrecoverable row with a stated reason.">
+<link rel="canonical" href="https://devdocsstudio-debug.github.io/verity-works/sample-data-cleaning.html">
+<meta property="og:title" content="CSV Cleaning Pipeline: Every Change Reported — Portfolio Sample — Verity Works">
+<meta property="og:description" content="An independent portfolio sample: a zero-dependency CSV cleaning and validation pipeline that records every change made and rejects every unrecoverable row with a stated reason.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CSV Cleaning Pipeline: Every Change Reported — Portfolio Sample — Verity Works">
+<meta name="twitter:description" content="An independent portfolio sample: a zero-dependency CSV cleaning and validation pipeline that records every change made and rejects every unrecoverable row with a stated reason.">
+<meta name="robots" content="index,follow">
+<!-- font-display:optional, NOT swap, and only on these generated sample pages. MEASURED 2026-10-19:
+     with swap, these prose-heavy pages shifted badly as Inter replaced the Segoe UI fallback and
+     paragraphs reflowed to fewer lines -- sample-zod-v4.html measured CLS 0.2062 against Google's
+     0.1 threshold. optional takes it to 0.0000 on all three, verified at desktop and iPhone 13,
+     with Inter, Fraunces and JetBrains Mono all still applied.
+     TRADE-OFF, stated plainly: on a genuinely slow first visit the browser may keep the fallback
+     for that visit and use the webfont only once cached. For portfolio pages that is a better deal
+     than content jumping while someone reads code. The main pages KEEP swap -- they already measure
+     0.0003-0.007 and have no shift to buy out.
+     A metric-matched @font-face fallback (size-adjust:108.2%, derived from a real width measurement)
+     was tried FIRST and failed: no improvement here and it made sample-better-sqlite3 worse
+     (0.0323 -> 0.1948). It was reverted rather than kept. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=optional">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
+     version of this block was GitHub-dark (#12161c blue-grey, 6px radii) against a site whose
+     background is warm near-black with 2px radii -- it read as a panel borrowed from another
+     site. These values match .code-sample on devdocs-studio.html, the page these samples sell. */
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 2px; background: #050402; color: #E4C878; border: 1px solid var(--rule); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Ligatures OFF deliberately. JetBrains Mono renders => as an arrow glyph and -> as a single
+     arrow, and on the Zod sample that is genuinely ambiguous: z.prettifyError's real output
+     contains a literal arrow, so a reader could not tell observed output from rendered source.
+     For a document whose pitch is "this is the real output," that distinction has to survive. */
+  .sample pre, .sample code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+  .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
+  .sample :not(pre) > code { background: var(--surface-2); padding: .12em .35em; border-radius: 2px; }
+  /* --stamp is the bronze token base.css defines for quoted/evidence content, which is exactly
+     what the scope note is. It was var(--rule) at a 1.32:1 contrast, i.e. invisible -- so the
+     one paragraph that frames the whole page as an independent sample read as grey filler. */
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--stamp); color: var(--ink-soft); font-size: 14.5px; }
+  .sample h2 { margin-top: 32px; }
+  /* base.css gives the serif to h1/h2/.mark only, so an h3 fell back to the body sans-serif and
+     the closing section -- the last thing a reviewer reads -- looked like a bolded paragraph. */
+  .sample h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; margin-top: 30px; }
+  .sample p { max-width: 68ch; }
+  /* A scrollable region has to be reachable without a mouse (WCAG 2.1.1), and once <pre> is
+     focusable it needs a visible focus ring -- base.css's rule covers only a, button, input. */
+  .sample pre:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="mark" href="index.html">Verity Works</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
+      <a href="content-repurposing.html">Content Repurposing</a>
+      <a href="devdocs-studio.html">DevDocs Studio</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap sample">
+<h1>A CSV Cleaning Pipeline Whose Real Output Is the Rejection Report</h1>
+<p><em>Zero dependencies, Node built-ins only. Nothing is changed silently and nothing is discarded silently — every normalisation is recorded, and every row that cannot be cleaned is rejected with a reason.</em></p>
+<blockquote><strong>Sample scope note:</strong> this is an independent portfolio sample published by DevDocs Studio, the technical service from Verity Works, to show how we work. It is not client work and was not commissioned. The input is <strong>synthetic</strong>: invented businesses, <code>555</code> phone numbers, and domains under the <code>.example</code> TLD that RFC 2606 reserves for documentation and which can never be registered. No real personal data appears anywhere in it. <strong>Last verified run: 14/14 tests passing; 10 rows in, 4 accepted, 6 rejected, 25 fields normalised.</strong></blockquote>
+<hr>
+<h2>The principle</h2>
+<p>A cleaner that guesses is worse than one that refuses, because the guess arrives in the file looking exactly like data. <code>555-0233</code> is a seven-digit phone number; padding it into something dialable would be inventing a fact about a business.</p>
+<p>So the pipeline emits two artifacts, and the second one is the point:</p>
+<table>
+<tr><th><code>cleaned.csv</code></th><td>the rows that passed, normalised</td></tr>
+<tr><th><code>report.json</code></th><td>every change made, every row rejected, and why</td></tr>
+</table>
+<h2>What the sample run actually found</h2>
+<p>Six rejections, each a different defect class — this is real output, not an illustration:</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">10 rows in -&gt; 4 accepted, 6 rejected, 25 fields normalised
+
+rejected, with the reason:
+  line 3   Acme Plumbing LLC      duplicate of line 2 after normalisation
+  line 5   Cascade Roofing        founded year is not a number ("not known")
+  line 6   Denver Dental Group    email is not a deliverable address
+  line 7   Evergreen HVAC         phone has 7 digits, expected 10
+  line 9   (blank)                company is required and is empty
+  line 10  Granite Peak Builders  founded year 2200 is outside 1800-2026</code></pre>
+<h2>The duplicate only normalisation can find</h2>
+<p>Lines 2 and 3 differ in leading whitespace, email case, state case, phone format and revenue formatting — five surface differences. They are the same business.</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">  Acme Plumbing LLC ,John Smith,JOHN@ACME-PLUMBING.EXAMPLE,(303) 555-0142,denver,CO,1998,"$1,200,000"
+Acme Plumbing LLC,John Smith,john@acme-plumbing.example,303-555-0142,Denver,co,1998,"1200000"</code></pre>
+<p>Deduplication runs <strong>after</strong> normalisation, which is the only order in which it finds them — and the collapse is reported rather than silent.</p>
+<h2>Every change is recorded as a before and after</h2>
+<p>An extract from the real <code>report.json</code>:</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">{ "line": 2, "field": "company", "from": "  Acme Plumbing LLC ", "to": "Acme Plumbing LLC",
+  "change": "trimmed/collapsed whitespace" },
+{ "line": 2, "field": "email",   "from": "JOHN@ACME-PLUMBING.EXAMPLE", "to": "john@acme-plumbing.example",
+  "change": "lowercased/trimmed" },
+{ "line": 2, "field": "phone",   "from": "(303) 555-0142", "to": "+13035550142",
+  "change": "normalised to E.164" }</code></pre>
+<h2>Normalisations</h2>
+<table>
+<tr><th>email</th><td><code>JOHN@…</code> → lowercased; an address with no dotted TLD is <strong>rejected</strong>, not silently kept</td></tr>
+<tr><th>phone</th><td><code>(303) 555-0142</code>, <code>303-555-0142</code>, <code>+1 303 555 0177</code> → E.164. Seven digits is reported, never padded</td></tr>
+<tr><th>revenue</th><td><code>$1,200,000</code>, <code>1200000</code>, <code>$2.1M</code> → integer dollars. <code>$0</code> is <strong>kept</strong>, because a legitimate zero is not missing data</td></tr>
+<tr><th>founded</th><td>range-checked 1800–2026, so <code>2200</code> is rejected rather than stored</td></tr>
+<tr><th>state / city</th><td><code>colorado</code>, <code>co</code> → <code>CO</code>; <code>denver</code> → <code>Denver</code></td></tr>
+<tr><th>website</th><td>bare host gains <code>https</code>; <code>http</code> is upgraded</td></tr>
+</table>
+<h2>The tests that would catch a regression still looking correct</h2>
+<p>Most of the 14 are per-field. Four are invariants, and those are the ones worth reading:</p>
+<ul>
+<li><strong>Every difference between input and output appears in the report</strong> — the tool's whole promise.</li>
+<li><strong>Every rejected row states a reason, and never reaches the output.</strong></li>
+<li><strong>Counts reconcile</strong>: accepted + rejected = rows in. A row cannot go missing unreported.</li>
+<li><strong>Idempotent</strong>: re-running on the cleaned output changes nothing. A cleaner that keeps “fixing” its own output will eventually corrupt a field.</li>
+</ul>
+<h2>Running it</h2>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">node clean.js      # cleans the sample, writes cleaned.csv and report.json
+node test.js       # 14 tests, no install step</code></pre>
+</main>
+<footer class="site-footer">
+  <div class="wrap">DevDocs Studio — independent technical writing. Sample data is synthetic and uses RFC 2606 reserved domains.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span></div>
+</footer>
+</body>
+</html>

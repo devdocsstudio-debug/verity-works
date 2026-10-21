@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<title>Playwright Test Suite: UI + API, 48 Tests — Portfolio Sample — Verity Works</title>
+<meta name="description" content="An independent portfolio sample: a complete Playwright suite against a public demo app. Page Object Model, custom fixtures, 15 UI and 9 API tests, two viewports, 48/48 passing.">
+<link rel="canonical" href="https://devdocsstudio-debug.github.io/verity-works/sample-playwright-suite.html">
+<meta property="og:title" content="Playwright Test Suite: UI + API, 48 Tests — Portfolio Sample — Verity Works">
+<meta property="og:description" content="An independent portfolio sample: a complete Playwright suite against a public demo app. Page Object Model, custom fixtures, 15 UI and 9 API tests, two viewports, 48/48 passing.">
+<meta property="og:type" content="article">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Playwright Test Suite: UI + API, 48 Tests — Portfolio Sample — Verity Works">
+<meta name="twitter:description" content="An independent portfolio sample: a complete Playwright suite against a public demo app. Page Object Model, custom fixtures, 15 UI and 9 API tests, two viewports, 48/48 passing.">
+<meta name="robots" content="index,follow">
+<!-- font-display:optional, NOT swap, and only on these generated sample pages. MEASURED 2026-10-19:
+     with swap, these prose-heavy pages shifted badly as Inter replaced the Segoe UI fallback and
+     paragraphs reflowed to fewer lines -- sample-zod-v4.html measured CLS 0.2062 against Google's
+     0.1 threshold. optional takes it to 0.0000 on all three, verified at desktop and iPhone 13,
+     with Inter, Fraunces and JetBrains Mono all still applied.
+     TRADE-OFF, stated plainly: on a genuinely slow first visit the browser may keep the fallback
+     for that visit and use the webfont only once cached. For portfolio pages that is a better deal
+     than content jumping while someone reads code. The main pages KEEP swap -- they already measure
+     0.0003-0.007 and have no shift to buy out.
+     A metric-matched @font-face fallback (size-adjust:108.2%, derived from a real width measurement)
+     was tried FIRST and failed: no improvement here and it made sample-better-sqlite3 worse
+     (0.0323 -> 0.1948). It was reverted rather than kept. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=optional">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  /* Palette comes from base.css tokens, not from a generic code-highlighting theme. The first
+     version of this block was GitHub-dark (#12161c blue-grey, 6px radii) against a site whose
+     background is warm near-black with 2px radii -- it read as a panel borrowed from another
+     site. These values match .code-sample on devdocs-studio.html, the page these samples sell. */
+  .sample pre { overflow-x: auto; padding: 14px 16px; border-radius: 2px; background: #050402; color: #E4C878; border: 1px solid var(--rule); font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13.5px; line-height: 1.55; }
+  /* Ligatures OFF deliberately. JetBrains Mono renders => as an arrow glyph and -> as a single
+     arrow, and on the Zod sample that is genuinely ambiguous: z.prettifyError's real output
+     contains a literal arrow, so a reader could not tell observed output from rendered source.
+     For a document whose pitch is "this is the real output," that distinction has to survive. */
+  .sample pre, .sample code { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+  .sample code { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 0.93em; }
+  .sample :not(pre) > code { background: var(--surface-2); padding: .12em .35em; border-radius: 2px; }
+  /* --stamp is the bronze token base.css defines for quoted/evidence content, which is exactly
+     what the scope note is. It was var(--rule) at a 1.32:1 contrast, i.e. invisible -- so the
+     one paragraph that frames the whole page as an independent sample read as grey filler. */
+  .sample blockquote { margin: 18px 0; padding: 12px 16px; border-left: 3px solid var(--stamp); color: var(--ink-soft); font-size: 14.5px; }
+  .sample h2 { margin-top: 32px; }
+  /* base.css gives the serif to h1/h2/.mark only, so an h3 fell back to the body sans-serif and
+     the closing section -- the last thing a reviewer reads -- looked like a bolded paragraph. */
+  .sample h3 { font-family: 'Fraunces', Georgia, serif; font-size: 20px; margin-top: 30px; }
+  .sample p { max-width: 68ch; }
+  /* A scrollable region has to be reachable without a mouse (WCAG 2.1.1), and once <pre> is
+     focusable it needs a visible focus ring -- base.css's rule covers only a, button, input. */
+  .sample pre:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="mark" href="index.html">Verity Works</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="lead-generation.html">Lead Generation</a>
+      <a href="missed-call-audit.html">Missed Call Audit</a>
+      <a href="content-repurposing.html">Content Repurposing</a>
+      <a href="devdocs-studio.html">DevDocs Studio</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap sample">
+<h1>A Playwright Test Suite: UI and API, 48 Tests</h1>
+<p><em>A complete, runnable suite against a public demo app — Page Object Model, custom fixtures, role-based locators, desktop and mobile viewports, and coverage shaped around defects rather than features.</em></p>
+<blockquote><strong>Sample scope note:</strong> this is an independent portfolio sample published by DevDocs Studio, the technical service from Verity Works, to show how we work. It is not client work and was not commissioned. It runs against <code>demo.playwright.dev/todomvc</code>, the Playwright team's own public demo application, and <code>jsonplaceholder.typicode.com</code>, a public API published for testing. <code>robots.txt</code> was checked for both before a line was written. <strong>Last verified run: 48/48 passing</strong> across two browser projects.</blockquote>
+<hr>
+<h2>What the suite contains</h2>
+<table>
+<tr><th>UI tests</th><td>15 — adding, completing, editing, deleting, filtering, persistence</td></tr>
+<tr><th>API tests</th><td>9 — contract, filtering, nested resources, error handling, writes</td></tr>
+<tr><th>Projects</th><td>Desktop Chrome and Pixel 5 (mobile viewport), so 48 runs in total</td></tr>
+<tr><th>Dependencies</th><td>Playwright only</td></tr>
+</table>
+<h2>A Page Object that exposes intent, not selectors</h2>
+<p>No spec in this suite contains a locator. The page object offers verbs; when the markup changes, one file changes. A suite whose specs are full of CSS selectors is a suite that gets abandoned at the first redesign.</p>
+<p>Locators are role- and label-based rather than CSS. These break when the accessible structure genuinely changes — usually a real defect — whereas CSS locators break when somebody renames a class, which is not.</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">class TodoPage {
+  constructor(page) {
+    this.page = page;
+    this.newTodoInput = page.getByPlaceholder('What needs to be done?');
+    this.todoItems = page.getByTestId('todo-item');
+    this.counter = page.getByTestId('todo-count');
+  }
+
+  async add(title) {
+    await this.newTodoInput.fill(title);
+    await this.newTodoInput.press('Enter');
+  }
+
+  async remove(title) {
+    const row = this.item(title);
+    await row.hover();                       // the delete control only appears on hover
+    await row.getByRole('button', { name: 'Delete' }).click();
+  }
+}</code></pre>
+<h2>Fixtures instead of beforeEach</h2>
+<p>A test that opens <code>async ({ seededPage })</code> declares its dependency in its signature rather than in a block fifty lines above, and the fixture tears itself down.</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">const test = base.test.extend({
+  // A TodoPage already navigated and ready.
+  todoPage: async ({ page }, use) =&gt; {
+    const todoPage = new TodoPage(page);
+    await todoPage.goto();
+    await use(todoPage);
+  },
+
+  // Pre-seeded with three items, for tests about filtering and counting.
+  seededPage: async ({ page }, use) =&gt; {
+    const todoPage = new TodoPage(page);
+    await todoPage.goto();
+    await todoPage.addMany(['write the guide', 'run the examples', 'ship it']);
+    await use(todoPage);
+  },
+});</code></pre>
+<h2>Coverage shaped like a defect list</h2>
+<p>The happy path is covered. The tests worth reading are the others — the ones a “write some Playwright tests” engagement usually omits.</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">// NEGATIVE: the single most common real defect in this widget.
+test('an empty submission is rejected rather than creating a blank row', async ({ todoPage }) =&gt; {
+  await todoPage.newTodoInput.press('Enter');
+  await expect(todoPage.todoItems).toHaveCount(0);
+});
+
+// EDGE: text that would break an implementation interpolating into HTML.
+// If this ever renders as markup rather than text, that is an XSS, not a cosmetic bug.
+test('markup in a title is rendered as text, not as HTML', async ({ todoPage }) =&gt; {
+  const nasty = '&lt;img src=x onerror="document.title=\'pwned\'"&gt; &amp; "quoted"';
+  await todoPage.add(nasty);
+
+  expect(await todoPage.titles()).toEqual([nasty]);
+  await expect(todoPage.page).not.toHaveTitle('pwned');
+});
+
+// The defect manual testers miss, because they rarely refresh.
+test('todos and their completed state survive a reload', async ({ seededPage, page }) =&gt; {
+  await seededPage.complete('ship it');
+  await page.reload();
+  await expect(seededPage.checkbox('ship it')).toBeChecked();
+  expect(await seededPage.remaining()).toBe(2);
+});</code></pre>
+<h2>API tests that would fail if the API broke</h2>
+<p>These assert the contract — keys and types — rather than the copy. A test that pins the title text fails on a content change and tells you nothing about the API.</p>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">test('query filtering actually filters, rather than ignoring the parameter', async ({ request }) =&gt; {
+  const res = await request.get(`${BASE}/posts`, { params: { userId: 1 } });
+  const list = await res.json();
+
+  expect(list.length).toBeGreaterThan(0);
+  // The negative half is the one that matters: an API ignoring the filter still
+  // returns a non-empty list and would pass a length-only check.
+  expect(list.every((p) =&gt; p.userId === 1)).toBe(true);
+});</code></pre>
+<p>Ids are also asserted unique, which a count never catches.</p>
+<h2>One assertion deliberately not written</h2>
+<p>JSONPlaceholder is a fake backend: writes return a convincing <code>201</code> and persist nothing. The POST test asserts the echo and the assigned id, and <strong>does not</strong> assert that a follow-up GET returns the record.</p>
+<p>Writing that assertion would produce a test that passes against a mock while proving nothing — worse than no test, because it reports coverage that does not exist. The reasoning sits in a comment at the test, not in a changelog nobody reads.</p>
+<h2>Configuration, with the reasons written down</h2>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">forbidOnly: CI,          // a committed .only is how a suite silently stops
+                         // covering anything while still reporting green
+retries: CI ? 2 : 0,     // retrying locally hides flake from the person who
+                         // can still fix it
+trace: 'retain-on-failure',
+screenshot: 'only-on-failure',
+video: 'retain-on-failure',   // capturing always makes runs slow and output
+                              // unreadable; the point of a trace is the
+                              // failure nobody watched</code></pre>
+<h2>A real bug this suite caught in itself</h2>
+<p>The first full run was <strong>15 UI failures and 9 API passes</strong> — every UI test timing out on a missing input. It looked like selector flake.</p>
+<p>It was configuration. <code>baseURL</code> was <code>…/todomvc</code> without a trailing slash, and <code>page.goto('/')</code> resolves a leading slash against the <em>origin</em> — so every test loaded <code>demo.playwright.dev/</code>, which returns 404, instead of the application. Both lines now carry a comment explaining why the slash matters.</p>
+<p>It is recorded here rather than quietly fixed, because telling those two failure modes apart is most of what this job actually is.</p>
+<h2>Running it</h2>
+<pre tabindex="0" role="group" aria-label="Code sample"><code class="language-js">npm install
+npx playwright install chromium
+npx playwright test            # 48 tests, 2 projects</code></pre>
+</main>
+<footer class="site-footer">
+  <div class="wrap">DevDocs Studio — independent technical writing. Not affiliated with Playwright, Microsoft, TodoMVC or JSONPlaceholder.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span></div>
+</footer>
+</body>
+</html>
