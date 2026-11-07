@@ -1,0 +1,35 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:1080px;height:1350px}
+  /* THREE GROUPS AND space-between, never a single margin-top:auto. One auto margin pushes one
+     element to the bottom and leaves every other pixel of slack in a single hole -- measured on
+     the first renders: 55% of the figure card was empty and ~30% of the code card. */
+  body{background:#F7F5F0;color:#1B2A4A;font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+       display:flex;flex-direction:column;justify-content:space-between;padding:84px 84px 78px;overflow:hidden}
+  .mid{display:flex;flex-direction:column;justify-content:center;flex:1 1 auto;padding:54px 0}
+  .kicker{font-size:26px;letter-spacing:.20em;text-transform:uppercase;color:#5A6B86;font-weight:600}
+  .headline{font-size:76px;line-height:1.07;font-weight:700;letter-spacing:-.02em;margin-top:34px}
+  .headline.long{font-size:62px}
+  .headline.xlong{font-size:52px}
+  .proof{font-size:33px;line-height:1.44;color:#1B2A4A}
+  .rule{height:5px;width:132px;background:#3F7A5C;margin-bottom:32px}
+  .takeaway{font-size:29px;line-height:1.42;color:#5A6B86}
+  .mono{font-family:Consolas,"Courier New",monospace;font-size:28px;line-height:1.52;
+        background:#1B2A4A;color:#F7F5F0;padding:34px 38px;border-radius:12px;white-space:pre-wrap}
+  .brand{margin-top:46px;font-size:24px;letter-spacing:.16em;text-transform:uppercase;color:#5A6B86;font-weight:600}
+  .big{font-size:230px;line-height:.9;font-weight:700;letter-spacing:-.035em}
+  .biglabel{font-size:40px;line-height:1.26;margin-top:30px;font-weight:600}
+</style></head><body>
+    <div>
+      <div class="kicker">CATALOGUE FILTER OUTPUT</div>
+      <div class="headline long">240 addressable products, 5 that cleared the floor</div>
+    </div>
+    <div class="mid"><div class="mono">addressable   240
+us_stock(A)    20
+us_stock(B)  2571
+margin_pass     5</div></div>
+    <div>
+      <div class="rule"></div>
+      <div class="takeaway">Freight has a floor near 2 to 5 dollars per parcel whatever the weight, so the cheapest products have the worst unit economics. Filter on margin, not catalogue size.</div>
+      <div class="brand">Verity Works</div>
+    </div></body></html>
