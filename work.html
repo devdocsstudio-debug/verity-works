@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<title>Work &amp; case studies | Shopify integrations, automation, developer docs</title>
+<meta name="description" content="Shopify integration and ecommerce automation work you can inspect: a catalogue that reported healthy while every product was unbuyable, documentation where every example was executed, and a SaaS assessed honestly. All owner-operated — no client engagements claimed.">
+<link rel="canonical" href="https://devdocsstudio-debug.github.io/verity-works/work.html">
+<meta property="og:title" content="Work &amp; case studies — Verity Works">
+<meta property="og:description" content="Shopify integrations, ecommerce automation and developer documentation you can inspect. Every project states what it is, what it proves, and what it does not.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Work &amp; case studies — Verity Works">
+<meta name="twitter:description" content="Shopify integrations, ecommerce automation and developer documentation you can inspect.">
+<meta name="robots" content="index,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;700&display=swap">
+<link rel="stylesheet" href="assets/base.css">
+<style>
+  /* Page-local only. Everything else reuses the site's existing tokens and classes. */
+  .tier { font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:10.5px; letter-spacing:.04em;
+          text-transform:uppercase; border:1px solid var(--rule); border-radius:3px;
+          padding:3px 7px; color:var(--ink-soft); white-space:nowrap; }
+  .tier-verified { color:var(--accent-bright); border-color:var(--accent); }
+  .case { margin:0 0 18px; }
+  .case h3 { font-family:'Fraunces',Georgia,serif; font-size:21px; line-height:1.22; margin:6px 0 10px; color:var(--ink); }
+  .case dl { margin:14px 0 0; }
+  .case dt { font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:10.5px; letter-spacing:.04em;
+             text-transform:uppercase; color:var(--accent-bright); margin-top:13px; }
+  .case dd { margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.6; }
+  .case dd code { font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:13px; color:var(--ink); }
+  .limits { border-left:2px solid var(--stamp); padding-left:13px; margin-top:16px; }
+  .limits dt { color:var(--stamp); }
+  .honesty { background:var(--accent-soft); border:1px solid var(--rule); border-left:3px solid var(--accent);
+             padding:17px 19px; margin:22px 0 0; }
+  .honesty p { margin:0; color:var(--ink-soft); font-size:15px; line-height:1.62; }
+  .honesty strong { color:var(--ink); }
+  .stack { font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:12px; color:var(--ink-soft);
+           margin-top:14px; line-height:1.9; }
+  .row-head { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap">
+    <a class="mark" href="index.html">Verity Works</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="work.html" aria-current="page">Work</a>
+      <a href="devdocs-studio.html">DevDocs Studio</a>
+      <a href="lead-generation.html">Lead Generation</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <span class="pill hero-kicker">Work you can inspect</span>
+  <h1 style="font-size:clamp(29px,5.4vw,44px); line-height:1.1; max-width:19ch; text-wrap:balance;">Three problems, and how each was actually found.</h1>
+  <p style="font-size:18px; color:var(--ink-soft); max-width:660px;">
+    Every project below states what it is, what it proves, and what it does not. Where a system was
+    only ever run by us, it says so on the card.
+  </p>
+
+  <div class="honesty">
+    <p><strong>Said plainly, before anything else:</strong> every project on this page is
+    owner-operated. There are no paid client engagements yet, so nothing here is presented as one,
+    and there are no testimonials because there are no clients to quote. What there is instead is
+    working code, executed output and written-down limitations — the things you can check without
+    taking anyone's word for it.</p>
+  </div>
+
+  <h2 class="section-label">Featured case studies</h2>
+
+  <article class="card case">
+    <div class="row-head">
+      <span class="card-tag">Shopify · ecommerce integration</span>
+      <span class="tier tier-verified">Verified · owner-operated store</span>
+    </div>
+    <h3>A catalogue that reported healthy while every product was unbuyable</h3>
+    <dl>
+      <dt>The problem</dt>
+      <dd>A live Shopify store with 51 products showed as fully in stock. The admin dashboard
+      reported the catalogue healthy. The Admin API returned success on every write, with
+      <code>userErrors</code> an empty array. Customers could not buy a single item.</dd>
+
+      <dt>Why it was hard</dt>
+      <dd>No individual call was wrong. Connecting a supplier moved inventory to a
+      fulfilment-service location, and that location sat in no delivery profile's location group.
+      Shopify cannot compute a shipping rate for stock it cannot ship from, and a product it cannot
+      ship, it hides. Both facts were correct in isolation; the breakage lived in the combination,
+      which no single endpoint is responsible for reporting. The fulfilment-service location does
+      not even appear in the location group's list unless you explicitly ask for it — so the place
+      the problem lived was invisible in the place you would look.</dd>
+
+      <dt>What was done</dt>
+      <dd>Stopped reading the mutation response and wrote a separate query that asks the buyer's
+      question instead of the writer's: for each product, where does the inventory sit, and can any
+      shipping rate reach a customer from there? All 51 failed it. That read now runs against the
+      live store before anything counts as finished, and a real test order is placed before any
+      store is handed over.</dd>
+
+      <dt>Evidence</dt>
+      <dd>Reproducible against a live store via the Shopify Admin GraphQL API. The specific trap —
+      <code>locations()</code> omitting fulfilment-service locations unless <code>includeLegacy:
+      true</code> is passed — is the detail that makes the fault invisible, and it is the first
+      thing checked now.</dd>
+    </dl>
+    <div class="limits"><dl>
+      <dt>What this does not show</dt>
+      <dd>This was our own store, not a client's. The fix is specific to Shopify's delivery-profile
+      model and does not generalise to other platforms.</dd>
+    </dl></div>
+    <p class="stack">Shopify Admin GraphQL · delivery profiles · fulfilment-service locations · inventory levels · markets</p>
+  </article>
+
+  <article class="card case">
+    <div class="row-head">
+      <span class="card-tag">Developer documentation</span>
+      <span class="tier tier-verified">Verified · published &amp; executable</span>
+    </div>
+    <h3>Documentation where every example was run before the page shipped</h3>
+    <dl>
+      <dt>The problem</dt>
+      <dd>Code samples in documentation rot silently. The page keeps saying what the library used to
+      do, and the reader finds out it is wrong — usually in the middle of trying to use it.</dd>
+
+      <dt>What was done</dt>
+      <dd>Every published example is executed against the pinned version before the page ships, and
+      the script that ran it ships alongside. Snippets are extracted from the executed script rather
+      than typed into the prose, so a snippet cannot disagree with the code that produced it. A
+      sample that quietly stops working becomes a failed build instead of a support ticket.</dd>
+
+      <dt>Evidence</dt>
+      <dd>Live and readable now:
+      <a href="sample-zod-v4.html">a Zod v4 migration guide</a>,
+      <a href="sample-better-sqlite3.html">a better-sqlite3 transaction study</a>,
+      <a href="sample-pdf-lib.html">pdf-lib</a>,
+      <a href="sample-playwright-suite.html">a Playwright suite</a> and
+      <a href="sample-data-cleaning.html">a data-cleaning pipeline</a>.
+      The jsonwebtoken writeup corrected advice that turned out to be outdated for v9 — the library
+      already infers the algorithm family from the key type — which was only discovered by testing
+      the claim rather than repeating it.</dd>
+    </dl>
+    <div class="limits"><dl>
+      <dt>What this does not show</dt>
+      <dd>These are samples written to demonstrate the method, not commissioned client
+      documentation.</dd>
+    </dl></div>
+    <p class="stack">Node.js · TypeScript · pinned-version verification · extracted snippets · CI-style sample checks</p>
+  </article>
+
+  <article class="card case">
+    <div class="row-head">
+      <span class="card-tag">SaaS · payments · reliability</span>
+      <span class="tier">Working prototype · controlled beta</span>
+    </div>
+    <h3>A SaaS assessed honestly, and held back from launch</h3>
+    <dl>
+      <dt>What it is</dt>
+      <dd>A deployed multi-service SaaS with a Paddle webhook receiver, account entitlements and a
+      running production release.</dd>
+
+      <dt>The interesting part</dt>
+      <dd>Its own readiness assessment concluded <strong>no-go for a paid launch</strong>, and named
+      four blockers rather than shipping around them: no checkout had ever actually been completed
+      with a card, there was no password reset so a locked-out customer stays locked out, the legal
+      documents were unreviewed drafts, and the entitlement receiver wrote to a different database
+      from the one serving the site — so a payment could never have reached the customer who made
+      it.</dd>
+
+      <dt>Why it is on this page</dt>
+      <dd>Because the fourth blocker is the same shape as the Shopify fault above: every component
+      worked, and the combination did not. Finding that before a customer's money was involved is
+      the capability being offered here, and an assessment that says no is better evidence of it
+      than one that says yes.</dd>
+    </dl>
+    <div class="limits"><dl>
+      <dt>What this does not show</dt>
+      <dd>It is a controlled beta, not a live paid product. No revenue, no paying customers. The
+      blockers above are open.</dd>
+    </dl></div>
+    <p class="stack">Node.js · Paddle webhooks · SQLite · deployment &amp; release verification · production readiness review</p>
+  </article>
+
+  <h2 class="section-label">Other verified work</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-tag">AI automation · agent orchestration</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        An autonomous operations engine that runs daily: scheduled execution with crash recovery and
+        a watchdog, hardware-signed approval gates for consequential actions, social publishing
+        across three platforms, and a supplier-integration pipeline. Roughly 1,300 source files
+        behind <strong>439 test files</strong>.</p>
+      <p style="margin-top:10px;"><span class="tier">Internal tool · never sold or client-deployed</span></p>
+    </div>
+    <div class="card">
+      <span class="card-tag">Supplier &amp; catalogue engineering</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        Programmatic product, variant and inventory creation against a live Shopify store, with
+        live freight quoting per variant, margin screening after real fees and a measured return
+        rate, and automatic discounts — each written value read back and verified rather than
+        assumed from a success response.</p>
+      <p style="margin-top:10px;"><span class="tier tier-verified">Verified · owner-operated store</span></p>
+    </div>
+    <div class="card">
+      <span class="card-tag">Research &amp; verification</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        Trademark and brand-availability clearance across multiple national registers, with every
+        result recorded alongside how it was checked — and the gaps that remained open stated as
+        gaps rather than quietly closed.</p>
+      <p style="margin-top:10px;"><span class="tier tier-verified">Verified · research deliverable</span></p>
+    </div>
+    <div class="card">
+      <span class="card-tag">Integration engineering</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        Working integrations against the Meta Graph API (Page and Instagram publishing, profile
+        reads), the Shopify Admin GraphQL API, Gmail, and OAuth token lifecycles — including the
+        failure modes each one hides.</p>
+      <p style="margin-top:10px;"><span class="tier tier-verified">Verified · live credentials</span></p>
+    </div>
+  </div>
+
+  <h2 class="section-label">What you can hire us for</h2>
+  <div class="grid-2">
+    <div class="card">
+      <span class="card-tag">Diagnosis</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        A store, catalogue or integration that reports healthy and does not work. Products showing
+        sold out, inventory that will not sync, a channel that disagrees with the storefront.
+        You get the cause in writing, with the check that found it.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">Integration &amp; automation</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        Shopify Admin API work, supplier and channel sync, webhook pipelines, and workflow
+        automation — built so that every write is read back and a failure is loud.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">Developer documentation</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        API and library documentation where every example is executed against the pinned version
+        and the executing script is delivered with it. <a href="devdocs-studio.html">Details and pricing</a>.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">How it starts</span>
+      <p style="color:var(--ink-soft); font-size:15px; line-height:1.6; margin-top:8px;">
+        Tell me the symptom and what you have already ruled out. If I do not think I am the right
+        person for it, I will say so — that answer is free and usually quick.</p>
+      <p style="margin-top:12px;"><a class="btn" href="mailto:devdocsstudio@gmail.com?subject=Work%20enquiry">Describe the problem</a></p>
+    </div>
+  </div>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">Verity Works — independent professional services, built and operated by <a href="https://www.linkedin.com/in/noam-mor-27a510442/" target="_blank" rel="noopener">Noam Mor</a>.<span class="sep"><a href="mailto:devdocsstudio@gmail.com">devdocsstudio@gmail.com</a></span><span class="sep"><a href="terms.html">Service terms &amp; guarantees</a></span><span class="sep"><a href="privacy-policy/">Privacy</a></span></div>
+</footer>
+<script src="assets/ref-tracking.js"></script>
+<script src="assets/nav-toggle.js"></script>
+<script src="assets/analytics.js"></script>
+</body>
+</html>
