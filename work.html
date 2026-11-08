@@ -141,9 +141,11 @@
       <a href="sample-pdf-lib.html">pdf-lib</a>,
       <a href="sample-playwright-suite.html">a Playwright suite</a> and
       <a href="sample-data-cleaning.html">a data-cleaning pipeline</a>.
-      The jsonwebtoken writeup corrected advice that turned out to be outdated for v9 — the library
-      already infers the algorithm family from the key type — which was only discovered by testing
-      the claim rather than repeating it.</dd>
+      Those five are the published samples. The method also caught a live error in widely-repeated
+      security advice: testing it against jsonwebtoken v9 showed the library already infers the
+      algorithm family from the key type, so the usually-prescribed fix was addressing a version
+      that had moved on. That one is not published as a sample — it is noted here as what the
+      practice produces, not as something you can click.</dd>
     </dl>
     <div class="limits"><dl>
       <dt>What this does not show</dt>
